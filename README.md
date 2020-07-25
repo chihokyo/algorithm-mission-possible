@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# 算法集训任务！
+# leetcode_mission_possible「完不成的算法任务？😂」
 
 ## **■ 开始时间 第一阶段**
 
@@ -14,8 +13,3 @@
 | [剑指 Offer 03. 数组中重复的数字](https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/) | 2小时    | 需要用到三种方法进行考虑，难度很高啊。（新手的我） |
 |                                                              |          |                                                    |
 |                                                              |          |                                                    |
-
-=======
-# leetcode_mission_possible
-Challenge Leetcode Everyday🤣Everyweek😂
->>>>>>> 4368513aa9cf77b90f4901684598d052e2d78376
