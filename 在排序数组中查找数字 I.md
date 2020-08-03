@@ -1,0 +1,125 @@
+# 在排序数组中查找数字 I
+
+## 1. 题目描述
+
+> 统计一个数字在排序数组中出现的次数。
+> 示例 1:
+>
+> 输入: nums = [5,7,7,8,8,10], target = 8
+> 输出: 2
+> 示例 2:
+> 输入: nums = [5,7,7,8,8,10], target = 6
+> 输出: 0
+> 限制：
+> 0 <= 数组长度 <= 50000
+
+## 2. 注意点
+
+这一题我自己虽然做出来了，但是看到题解。有个大佬说遇到这种排序数组
+> 排序数组中的搜索问题，首先想到 **二分法** 解决
+
+二分法的重点就是分，分完之后要找到临界点。通过判断循环找到临界点。
+
+## 3. 题解
+
+### 思路1 遍历法（初级的我想出来的最直观的解法）
+
+```python
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        count = 0
+        for num in nums:
+            if num == target:
+                count += 1
+        return count
+```
+
+### 思路2 大佬推荐的二分法
+
+这个方法的思路稍微有点繁琐，等我整理好了之后写一下。主要利用的是**右边界-左边界-1** 就是这个重复值的长度。
+
+```python
+# 1
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+        i, j = 0, len(nums) - 1
+        while i <= j:
+            m = (i + j) // 2
+            if nums[m] <= target:
+                i = m + 1
+            else:
+                j = m - 1
+        right = i
+        if j >= 0 and nums[j] != target:return 0
+        i = 0
+        while i <= j:
+            m = (i + j) // 2
+            if nums[m] < target:
+                i = m + 1
+            else:
+                j = m - 1
+        left = j
+        return right - left - 1
+# 优化写法 时间稍微快点
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+        def helper(tar):
+            i, j = 0, len(nums)- 1
+            while i <= j:
+                m = (i + j) // 2
+                if nums[m] <= tar:
+                    i = m + 1
+                else:
+                    j = m -1
+            return i
+        return helper(target) - helper(target - 1)
+```
+
+### 思路3 使用二分法递归遍历
+
+```python
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+        def helper(tar):
+            i, j = 0, len(nums)- 1
+            while i <= j:
+                m = (i + j) // 2
+                if nums[m] <= tar:
+                    i = m + 1
+                else:
+                    j = m -1
+            return i
+        return helper(target) - helper(target - 1)
+```
+
+### 思路4 Python bisect二分查找函数
+
+这个是看了评论有人写的题解我才知道原来有个专门处理二分法的函数。
+[bisect --- 数组二分查找算法](https://docs.python.org/zh-cn/3/library/bisect.html)
+
+为了在 *a* 中找到 *x* 合适的插入点以维持有序。
+**bisect_left** 如果要在【左边】插入一个数字并且保持有序。
+`[5,7,7,8,8,10]` 比如要插入一个8，要么为了合适的位置插入8并且保持有序的话，那么最后这个位置就是index=3
+同理那么右边
+**bisect_right** 这个位置就是index=5 那么最后5-3就是答案 2. 这个方法很偷懒啊！！但是超好用啊！！
+
+```python
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+				return bisect.bisect_right(nums, target) - bisect.bisect_left(nums, target)
+```
+
+### 思路5 Python collections 哈希表
+
+```python
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+      # 使用 collections 生成一个哈希表 key是数字 value 是出现次数
+        from collections import Counter
+        dictNum = Counter(nums)
+        return dictNum[target] if target in dictNum else 0
+```
+
+虽然上面方法有很多，但是在LeetCode里测试运行时间和内存消耗整体上来说都是差不多的。
+
+所以主要目的也就是个学习思路和逻辑吧。尤其是Python特殊的解决方法会有很多。
