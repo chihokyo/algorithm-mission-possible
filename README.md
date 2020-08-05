@@ -42,22 +42,22 @@
 
 [【剑指offer 链表-简单】](https://leetcode-cn.com/problemset/lcof/?difficulty=%E7%AE%80%E5%8D%95&topicSlugs=linked-list)
 
-| 题目                                                         | 完成时间     | 心得体会              |
-| ------------------------------------------------------------ | ------------ | --------------------- |
-| [剑指 Offer 22. 链表中倒数第k个节点](https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/) | 8/4【2小时】 | 链表&双指针的复习     |
-| [剑指 Offer 06. 从尾到头打印链表](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/) | 8/4【1小时】 | 栈stack和递归的再认识 |
-| [剑指 Offer 24. 反转链表](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/) | 待定         |                       |
-| [剑指 Offer 52. 两个链表的第一个公共节点](https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/) | 待定         |                       |
-| [剑指 Offer 18. 删除链表的节点](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/) | 待定         |                       |
+| 题目                                                         | 完成时间     | 心得体会                       |
+| ------------------------------------------------------------ | ------------ | ------------------------------ |
+| [剑指 Offer 22. 链表中倒数第k个节点](https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/) | 8/4【2小时】 | 链表&双指针的复习              |
+| [剑指 Offer 06. 从尾到头打印链表](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/) | 8/4【1小时】 | 栈stack和递归的再认识          |
+| [剑指 Offer 24. 反转链表](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/) | 8/5【5小时】 | 对链表理解不深，花费时间巨大。 |
+| [剑指 Offer 52. 两个链表的第一个公共节点](https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/) | 8/5【】      |                                |
+| [剑指 Offer 18. 删除链表的节点](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/) | 8/5【】      |                                |
 
 ## 4. 哈希表
 
 [【剑指offer 哈希表-简单】](https://leetcode-cn.com/problemset/lcof/?topicSlugs=hash-table&difficulty=简单)
 
-| 题目 | 完成时间 | 心得体会 |
-| ---- | -------- | -------- |
-|      |          |          |
-|      |          |          |
+| 题目                                                         | 完成时间 | 心得体会 |
+| ------------------------------------------------------------ | -------- | -------- |
+| [~~剑指 Offer 03. 数组中重复的数字~~](https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/) | 做过的   |          |
+| [剑指 Offer 50. 第一个只出现一次的字符](https://leetcode-cn.com/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/) | 8/5【】  |          |
 
 ## 5. 栈&堆&队列
 
@@ -65,7 +65,7 @@
 
 | 题目 | 完成时间 | 心得体会 |
 | ---- | -------- | -------- |
-|      |          |          |
-|      |          |          |
-|      |          |          |
-|      |          |          |
+|      | 8/6【】  |          |
+|      | 8/6【】  |          |
+|      | 8/6【】  |          |
+|      | 8/6【】  |          |
