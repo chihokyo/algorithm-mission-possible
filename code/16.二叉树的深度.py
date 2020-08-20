@@ -33,3 +33,31 @@ class Solution:
             queue = temp
             res += 1
         return res
+    
+# 双端队列
+from collections import deque
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def maxDepth(self, root: TreeNode) -> int:
+        from collections import deque
+        if not root: return 0
+        worklist = deque([root])
+        num_node_level = 1
+        level = 0
+        while worklist:
+            node = worklist.popleft()
+            if node.left:
+                worklist.append(node.left)
+            if node.right:
+                worklist.append(node.right)
+            num_node_level -= 1
+            if num_node_level == 0:
+                level += 1
+                num_node_level = len(worklist)
+        return level
