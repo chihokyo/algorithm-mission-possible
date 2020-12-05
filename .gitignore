@@ -1,2 +1,3 @@
 *.DS_Store
-/code/demo.py
+/code/python/demo.py
+leetcode_test.py
