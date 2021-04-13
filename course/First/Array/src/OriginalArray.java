@@ -121,7 +121,9 @@ public class OriginalArray<E> {
     // 在任意位置添加
     public void add(int index, E e) {
         if (size == data.length) {
-            throw new IllegalArgumentException("AddLast Failed ! Array is full");
+            // throw new IllegalArgumentException("AddLast Failed ! Array is full");
+            // 自动扩容
+            resize(2 * data.length);
         }
         if (index < 0 || index > size) {
             throw new IllegalArgumentException("Add Failed. Require index >= 0 and index < =size");
@@ -195,6 +197,10 @@ public class OriginalArray<E> {
         // 虽然java有垃圾回收
         // 但还是手动释放比较好
         data[size] = null; // loitering objects
+        // 实际容量只用到了2分之一。
+        if (size == data.length / 2) {
+            resize(data.length / 2);
+        }
         return res;
     }
 
@@ -225,6 +231,16 @@ public class OriginalArray<E> {
         if (index != -1) {
             remove(index);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void resize(int newCapacity) {
+        E[] newArr = (E[]) new Object[newCapacity];
+        for (int i = 0; i < size; i++) {
+            newArr[i] = data[i];
+        }
+        // 这里指向直接改变就可以就好
+        data = newArr;
     }
 
     @Override
