@@ -1,12 +1,9 @@
-import java.util.Arrays;
-import java.util.stream.IntStream;
-
-public class OriginalArray {
+public class OriginalArray<E> {
 
     // capacity 容量 因为可以通过data.length算出来 就不新建了
     // size 实际数组大小
 
-    private int[] data;
+    private E[] data;
     private int size;
 
     /**
@@ -14,8 +11,11 @@ public class OriginalArray {
      *
      * @param capacity 表示这个数组能装多少 容量大小
      */
+    @SuppressWarnings("unchecked")
     public OriginalArray(int capacity) {
-        data = new int[capacity];
+        // data = new int[capacity];
+        // data = new E[capacity];泛型不能new 历史遗留问题
+        data = (E[]) new Object[capacity];
         size = 0;
     }
 
@@ -60,7 +60,7 @@ public class OriginalArray {
      * @param index 指定位置
      * @return int 获取元素
      */
-    int get(int index) {
+    public E get(int index) {
         if (index < 0 || index >= size) {
             throw new IllegalArgumentException("Get Failed. Index is illegal");
         }
@@ -73,7 +73,7 @@ public class OriginalArray {
      * @param index 指定位置
      * @param e     新的元素
      */
-    void set(int index, int e) {
+    void set(int index, E e) {
         if (index < 0 || index >= size) {
             throw new IllegalArgumentException("Get Failed. Index is illegal");
         }
@@ -89,7 +89,7 @@ public class OriginalArray {
     // 以向后添加为例
     // 1 判断是否满了
     // 2 在size的位置赋值 并且size++
-    public void addLast(int e) {
+    public void addLast(E e) {
         // if (size == data.length){
         //     throw new IllegalArgumentException("AddLast Failed ! Array is full");
         // }
@@ -108,7 +108,7 @@ public class OriginalArray {
      * @param e 元素
      */
     // 在first添加元素
-    public void addFirst(int e) {
+    public void addFirst(E e) {
         add(0, e);
     }
 
@@ -119,7 +119,7 @@ public class OriginalArray {
      * @param e     需要添加的元素
      */
     // 在任意位置添加
-    public void add(int index, int e) {
+    public void add(int index, E e) {
         if (size == data.length) {
             throw new IllegalArgumentException("AddLast Failed ! Array is full");
         }
@@ -147,9 +147,9 @@ public class OriginalArray {
      * @param e 目标元素
      * @return 返回布尔值
      */
-    public boolean contains(int e) {
+    public boolean contains(E e) {
         for (int i = 0; i < size; i++) {
-            if (data[i] == e) {
+            if (data[i].equals(e)) {
                 return true;
             }
         }
@@ -164,7 +164,7 @@ public class OriginalArray {
      */
     public int find(int e) {
         for (int i = 0; i < size; i++) {
-            if (data[i] == e) {
+            if (data[i].equals(e)) {
                 return i;
             }
         }
@@ -177,12 +177,12 @@ public class OriginalArray {
      * @param index 索引
      * @return 返回删除的元素
      */
-    public int remove(int index) {
+    public E remove(int index) {
         if (index < 0 || index > size) {
             throw new IllegalArgumentException("Remove Failed. Require index >= 0 and index < =size");
         }
         // 1 暂存需要删除的元素
-        int res = data[index];
+        E res = data[index];
         // 2 所有index之后的元素都向前挪动一个元素
         // 又是idea推荐写法
         // IntStream.range(index + 1, size).forEach(i -> data[i - 1] = data[i]);
@@ -191,24 +191,24 @@ public class OriginalArray {
         }
         // 3 删除之后长度size要--
         size--;
+        // 如果使用的是泛型E 所以size--即使--之后data[size]也是指向了一个空间
+        // 虽然java有垃圾回收
+        // 但还是手动释放比较好
+        data[size] = null; // loitering objects
         return res;
     }
 
     /**
      * 删除index为0的元素
-     *
-     * @return 返回index为0的元素
      */
-    public int removeFirst() {
+    public E removeFirst() {
         return remove(0);
     }
 
     /**
      * 删除index在最后一个的元素
-     *
-     * @return 返回index在最后 也就是size - 1的元素
      */
-    public int removeLast() {
+    public E removeLast() {
         // 我第一次写成了size 是错误的 size是长度
         // 最后一个index应该是size - 1
         return remove(size - 1);

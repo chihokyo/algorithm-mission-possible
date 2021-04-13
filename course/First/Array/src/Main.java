@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        OriginalArray arr = new OriginalArray(20);
+        OriginalArray<Integer> arr = new OriginalArray<>(20);
         for (int i = 0; i < 10; i++) {
             arr.addLast(i);
         }
