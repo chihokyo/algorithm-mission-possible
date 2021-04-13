@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class OriginalArray {
 
@@ -138,6 +139,92 @@ public class OriginalArray {
 
         data[index] = e;
         size++;
+    }
+
+    /**
+     * 查询是否包含元素e
+     *
+     * @param e 目标元素
+     * @return 返回布尔值
+     */
+    public boolean contains(int e) {
+        for (int i = 0; i < size; i++) {
+            if (data[i] == e) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 查询数组元素所在的索引，不存在返回-1
+     *
+     * @param e 目标元素
+     * @return int 返回索引
+     */
+    public int find(int e) {
+        for (int i = 0; i < size; i++) {
+            if (data[i] == e) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 根据索引删除元素 并且返回元素
+     *
+     * @param index 索引
+     * @return 返回删除的元素
+     */
+    public int remove(int index) {
+        if (index < 0 || index > size) {
+            throw new IllegalArgumentException("Remove Failed. Require index >= 0 and index < =size");
+        }
+        // 1 暂存需要删除的元素
+        int res = data[index];
+        // 2 所有index之后的元素都向前挪动一个元素
+        // 又是idea推荐写法
+        // IntStream.range(index + 1, size).forEach(i -> data[i - 1] = data[i]);
+        for (int i = index + 1; i < size; i++) {
+            data[i - 1] = data[i];
+        }
+        // 3 删除之后长度size要--
+        size--;
+        return res;
+    }
+
+    /**
+     * 删除index为0的元素
+     *
+     * @return 返回index为0的元素
+     */
+    public int removeFirst() {
+        return remove(0);
+    }
+
+    /**
+     * 删除index在最后一个的元素
+     *
+     * @return 返回index在最后 也就是size - 1的元素
+     */
+    public int removeLast() {
+        // 我第一次写成了size 是错误的 size是长度
+        // 最后一个index应该是size - 1
+        return remove(size - 1);
+    }
+
+    /**
+     * 直接删除元素（第一个出现的）
+     *
+     * @param e 直接删除
+     */
+    public void removeElement(int e) {
+        // 先判断一下是否有
+        int index = find(e);
+        if (index != -1) {
+            remove(index);
+        }
     }
 
     @Override

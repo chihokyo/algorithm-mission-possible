@@ -12,9 +12,19 @@ public class Main {
         arr.addFirst(100);
         System.out.println(arr);
 
-        int res = arr.get(0);
+        int res = arr.get(5);
         System.out.println(res);
         arr.set(0, 1000);
+        System.out.println(arr);
+
+        System.out.println("开始删除");
+        arr.removeFirst();
+        System.out.println(arr);
+        arr.removeElement(8);
+        System.out.println(arr);
+        arr.removeLast();
+        System.out.println(arr);
+        arr.removeFirst();
         System.out.println(arr);
     }
 }
