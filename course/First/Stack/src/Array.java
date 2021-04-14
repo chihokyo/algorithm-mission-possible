@@ -1,4 +1,4 @@
-public class OriginalArray<E> {
+public class Array<E> {
 
     // capacity 容量 因为可以通过data.length算出来 就不新建了
     // size 实际数组大小
@@ -12,7 +12,7 @@ public class OriginalArray<E> {
      * @param capacity 表示这个数组能装多少 容量大小
      */
     @SuppressWarnings("unchecked")
-    public OriginalArray(int capacity) {
+    public Array(int capacity) {
         // data = new int[capacity];
         // data = new E[capacity];泛型不能new 历史遗留问题
         data = (E[]) new Object[capacity];
@@ -23,7 +23,7 @@ public class OriginalArray<E> {
      * 无参构造函数
      * 这里默认数组的容量就是capacity=10
      */
-    public OriginalArray() {
+    public Array() {
         this(10);
     }
 
@@ -65,6 +65,27 @@ public class OriginalArray<E> {
             throw new IllegalArgumentException("Get Failed. Index is illegal");
         }
         return data[index];
+    }
+
+    /**
+     * 得到第一个元素
+     *
+     * @return 第一个元素
+     */
+    public E getFirst() {
+        return get(0);
+    }
+
+    /**
+     * 得到最后一个元素
+     *
+     * @return 最后一个元素
+     */
+    public E getLast() {
+        // 这里使用size - 1 是因为get那里可以直接判断了
+        // 如果使用data[size - 1];
+        // 这样的话在size是0的情况下，索引为负数了
+        return get(size - 1);
     }
 
     /**
