@@ -50,6 +50,7 @@ public class LoopQueue<E> implements Queue<E> {
     @Override
     public boolean isEmpty() {
         // 头尾碰一起 就是到头了
+        // 因为也有可能是满了 所以才有了 tail + 1 = front 的概念
         return front == tail;
     }
 
@@ -106,6 +107,7 @@ public class LoopQueue<E> implements Queue<E> {
         }
         data = newData;
         front = 0;
+        // 元素个数 并没有影响
         tail = size;
 
     }
