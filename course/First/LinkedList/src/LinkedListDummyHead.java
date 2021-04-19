@@ -60,9 +60,7 @@ public class LinkedListDummyHead<E> {
      */
     public void add(int index, E e) {
 
-        if (index < 0 || index > size) {
-            throw new IllegalArgumentException("Add failed. Illegal index. ");
-        }
+        validateIndex(index);
 
         Node pre = dummyHead;
         // 为什么用了index 而不是index - 1 因为上一个是从0 而这一个是从 dummyHead
@@ -91,5 +89,140 @@ public class LinkedListDummyHead<E> {
      */
     public void addLast(E e) {
         add(size, e);
+    }
+
+    /**
+     * 获取指定位置index的元素
+     *
+     * @param index 指定索引
+     * @return E 元素
+     */
+    public E get(int index) {
+        validateIndex(index);
+        Node cur = dummyHead.next;
+        for (int i = 0; i < index; i++) {
+            cur = cur.next;
+        }
+        return cur.e;
+    }
+
+    /**
+     * 获取第一个元素
+     *
+     * @return E 元素
+     */
+    public E getFirst() {
+        return get(0);
+    }
+
+    /**
+     * 获取最后一个元素
+     *
+     * @return E 元素
+     */
+    public E getLast() {
+        return get(size - 1);
+    }
+
+    /**
+     * 修改指定位置index的元素
+     *
+     * @param index 指定位置index
+     * @param e     元素
+     */
+    public void set(int index, E e) {
+        validateIndex(index);
+        Node cur = dummyHead.next;
+        for (int i = 0; i < index; i++) {
+            cur = cur.next;
+        }
+        cur.e = e;
+    }
+
+    /**
+     * 检查索引是否有问题
+     *
+     * @param index 索引
+     */
+    public void validateIndex(int index) {
+        if (index < 0 || index > size) {
+            throw new IllegalArgumentException("Illegal index.");
+        }
+    }
+
+    /**
+     * 是否包含指定元素
+     *
+     * @param e 指定元素
+     * @return boolean
+     */
+    public boolean contains(E e) {
+        Node cur = dummyHead.next;
+        while (cur != null) {
+            cur = cur.next;
+            if (cur.e.equals(e)) {
+                return true;
+            }
+            // 大意了，这个地方竟然没有写结束条件 死循环啦
+            cur = cur.next;
+        }
+        return false;
+    }
+
+    /**
+     * 删除指定索引的元素
+     *
+     * @param index 指定索引
+     * @return E 元素
+     */
+    public E remove(int index) {
+        validateIndex(index);
+        Node pre = dummyHead;
+        for (int i = 0; i < index; i++) {
+            pre = pre.next;
+        }
+        Node retNode = pre.next;
+        pre.next = retNode.next;
+        retNode.next = null;
+        size--;
+        // 这里我有误区 我第一次自己写成了retNode
+        return retNode.e;
+    }
+
+    /**
+     * 删除第一个元素并返回
+     *
+     * @return E
+     */
+    public E removeFirst() {
+        return remove(0);
+    }
+
+    /**
+     * 删除最后一个元素并返回
+     *
+     * @return E
+     */
+    public E removeLast() {
+        return remove(size - 1);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        Node cur = dummyHead.next;
+        while (cur != null) {
+            // idea推荐我的 这样写比较好
+            // 我本来写的是这样 res.append(cur + "->");
+            res.append(cur).append("->");
+            cur = cur.next;
+        }
+        // 第二种循环写法
+        // for(Node cur = dummyHead.next; cur != null; cur = cur.next) {
+        //     res.append(cur).append("->");
+        //     cur = cur.next;
+        // }
+        res.append("NULL");
+        return res.toString();
     }
 }
