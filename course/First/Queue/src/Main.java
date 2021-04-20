@@ -31,5 +31,11 @@ public class Main {
 
         // 这里数组队列特别拉胯的原因就在于出队的时候的操作是O(n)复杂 合起来就是n2级别
         // 但是循环队列的话 都是O(1)级别
+
+        LinkedListQueue<Integer> linkedListQueue = new LinkedListQueue<>();
+        double timeLinked = testQueue(loopQueue, opCount);
+        System.out.println("LinkedListQueue, time: " + timeLinked + "s");
+
+        // LinkedList 和 Loop其实是一样的级别
     }
 }
