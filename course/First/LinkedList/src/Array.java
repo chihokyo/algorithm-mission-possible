@@ -159,7 +159,6 @@ public class Array<E> {
         // idea推荐我这样写 没想到还是对的，还需要我干什么
         // 好吧 但是上面的是基础
         System.arraycopy(data, index, data, index + 1, size - index);
-
         data[index] = e;
         size++;
     }
