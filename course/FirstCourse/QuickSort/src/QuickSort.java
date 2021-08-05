@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Random;
 
 public class QuickSort {
 
@@ -28,6 +29,13 @@ public class QuickSort {
      * @return int 返回基准点pivot所在的index位置
      */
     private static <E extends Comparable<E>> int partition(E[] arr, int left, int right) {
+        // 解决基准点是left而不是随机值的问题
+        // 第二版 想要生成一个随机值[left,right]
+        // 因为nextInt里面的数字是不包含的 所以要 + 1
+        int p = left + (new Random()).nextInt(right - left + 1);
+        // 这里就是交换left和p，保证了下面的j其实不是第一个，而是上面生成的那个p的随机
+        swap(arr, left, p);
+
         // arr[left+1,j] < v ;arr[j+1,i] >= v
         // 因为这里你会发现>=v 都是可以的。所以就是>=v
         int j = left;
@@ -73,7 +81,7 @@ public class QuickSort {
         Integer[] arr4 = Arrays.copyOf(arr3, arr3.length);
 
         SortingHelper.sortTest("MergeSort", arr3);
-        SortingHelper.sortTest("QuickSort", arr4); // 栈溢出
+        SortingHelper.sortTest("QuickSort", arr4); // 栈溢出 解决之后，就不会栈溢出了
 
     }
 
