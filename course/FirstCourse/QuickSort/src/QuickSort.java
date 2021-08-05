@@ -2,52 +2,51 @@ import java.util.Arrays;
 
 public class QuickSort {
 
-    private QuickSort(){}
+    private QuickSort() {
+    }
 
-    public static <E extends Comparable<E>> void sort(E[] arr){
-        // 0 开始 index最后一个结束
+    public static <E extends Comparable<E>> void sort(E[] arr) {
         sort(arr, 0, arr.length - 1);
     }
 
-    public static <E extends Comparable<E>> void sort(E[] arr, int left, int right){
+    public static <E extends Comparable<E>> void sort(E[] arr, int left, int right) {
+        // 这里递归终止条件就是左边大于右边
         if (left >= right) return;
-        int pivot = partition(arr,left, right);
-        sort(arr, left, pivot - 1);
-        sort(arr, pivot + 1, right);
+        int p = partition(arr, left, right);
+        // 上面结束之后arr[left, p-1] < arr[p];arr[p+1,right] >= arr[p]的
+        sort(arr, left, p - 1);
+        sort(arr, p + 1, right);
     }
 
     /**
-     * 这里实现的是原地排序
-     * 维持循环不变量
-     * arr[left + 1, j] < v; arr[j + 1, i] >= v
-     * i是当前需要处理的 变动着的
-     * v所在的初始化就是 arr[left]
+     * 实现原地数组排序
      *
-     * @param arr 数组
-     * @param left 左区间
+     * @param arr   数组
+     * @param left  左区间
      * @param right 右区间
-     * @param <E> 返回泛型
-     * @return int 返回那个中间的index是多少
+     * @param <E>   返回泛型
+     * @return int 返回基准点pivot所在的index位置
      */
-    private static <E extends Comparable<E>> int partition(E[] arr, int left, int right){
-
-        // -----其实这里的逻辑最好用动画来表示一下比较好。语言太贫乏了-----
-        // 这里设定一个会移动的j
+    private static <E extends Comparable<E>> int partition(E[] arr, int left, int right) {
+        // arr[left+1,j] < v ;arr[j+1,i] >= v
+        // 因为这里你会发现>=v 都是可以的。所以就是>=v
         int j = left;
-        // i从left后面一个开始移动
-        for (int i = left + 1; i <= right; i++) {
-            // 大于0证明i移动的那个数值要比前面的数字大，说明只要i++就可以
+        for (int i = j + 1; i <= right; i++) {
+            // 因为如果要大于的话 直接就是i++就可以
+            // 所以这里开始只写小于的情况，那么就是j++，然后ij互换
             if (arr[i].compareTo(arr[left]) < 0) {
                 j++;
-                swap(arr, i , j);
+                swap(arr, i, j);
             }
         }
+
+        // 以上流程全部走完的话，这里依然没有结束arr[left] 也就是基准点，还没有回归原位
+        // 进行最后一次交换，然后让left到该到的位置
         swap(arr, left, j);
-        // -----以上的逻辑有动画就好了-----
+        // 为什么最后要返回j 因为这个j其实就是我们需要的基准点的原位
         return j;
     }
 
-    // 数组交换
     private static <E> void swap(E[] arr, int i, int j) {
         E t = arr[i];
         arr[i] = arr[j];
@@ -56,16 +55,26 @@ public class QuickSort {
 
     public static void main(String[] args) {
 
-        int n = 5000000;
+        int n = 100000;
 
         // MergeSort, n = 5000000: 1.559710 s
         // QuickSort, n = 5000000: 1.136350 s
         // 还是快速更快呢
 
-        Integer[] arr = ArrayGenerator.generateRandomArray(n, n);
-        Integer[] arr2 = Arrays.copyOf(arr, arr.length);
+        // 无序数组
+        // Integer[] arr = ArrayGenerator.generateRandomArray(n, n);
+        // Integer[] arr2 = Arrays.copyOf(arr, arr.length);
+        //
+        // SortingHelper.sortTest("MergeSort", arr);
+        // SortingHelper.sortTest("QuickSort", arr2);
 
-        SortingHelper.sortTest("MergeSort", arr);
-        SortingHelper.sortTest("QuickSort", arr2);
+        // 有序数组
+        Integer[] arr3 = ArrayGenerator.generateOrderArray(n);
+        Integer[] arr4 = Arrays.copyOf(arr3, arr3.length);
+
+        SortingHelper.sortTest("MergeSort", arr3);
+        SortingHelper.sortTest("QuickSort", arr4); // 栈溢出
+
     }
+
 }
