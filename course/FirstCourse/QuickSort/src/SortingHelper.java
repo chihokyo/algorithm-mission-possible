@@ -32,6 +32,7 @@ public class SortingHelper {
         switch (sortName) {
             case "MergeSort" -> MergeSort.sort2(arr);
             case "QuickSort" -> QuickSort.sort(arr);
+            case "QuickSort2Ways" -> QuickSort.sort2ways(arr);
         }
 
         long endTime = System.nanoTime();

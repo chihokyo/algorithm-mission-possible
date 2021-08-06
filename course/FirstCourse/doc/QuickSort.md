@@ -6,7 +6,7 @@
 
 ![截屏2021-07-04 23.35.51](https://raw.githubusercontent.com/chihokyo/image_host/master/20210704233558.png)
 
-## 第一个难点
+## 1. 第一个难点
 
 一个数组 8 6 4 9 12 1 0 这样的一个数组，首先我们随便指定一个。比如8，
 
@@ -129,3 +129,107 @@ private static <E extends Comparable<E>> int partition(E[] arr, int left, int ri
 ### 万一每一次随机都取最小值？
 
 概率极低极低 大概是 1/n! 低到宇宙大爆炸！
+
+## 2. 新的问题出来了
+
+如果数组里全部的数据都相同呢！！[0,0,0,0,0...]
+
+发现龟速的慢，原因其实和上面一样。
+
+都一样的情况下，j每一次都停留，一直在i++。完全没有交换过位置。最后，左边是空，右边是n-2元素。
+
+还是每一次都在递归。。。下面的解决方案依然错误。一样。
+
+```java
+arr[left+1,j] < v ;arr[j+1,i] >= v 不行
+arr[left+1,j] <= v ;arr[j+1,i] > v 不行
+```
+
+### 解决方法 → 双路快速排序法
+
+双路快速排序法
+
+这里可以和上面的图进行对比，循环不变量有了很大的不同。至于为什么是**<= >=**，而不是**< >**这是因为这样做会保证在数值相等的时候，数值会均匀的分散到左右2部分。
+
+![image-20210807022123358](https://raw.githubusercontent.com/chihokyo/image_host/master/20210807022124.png)
+
+具体下来。
+
+初始化，2个都是一个空区间。
+
+![image-20210807022524192](https://raw.githubusercontent.com/chihokyo/image_host/master/20210807022525.png)
+
+这样继续向前走，6因为是大于4的，停住。而1正好是小于4的，也停住。left和right都停住了，那么双方交换，交换之后i++,j--，这样继续缩小范围到下一轮循环。直到i是大于j的，这时候全部停止。然后交换left和j就可以
+
+![Aug-07-2021 02-31-13](https://raw.githubusercontent.com/chihokyo/image_host/master/20210807023135.gif)
+
+而，如果是[0,0,0,0...]这样的全部相同的数组，这时候i和j如果都停住，并且都相等，说明*i == j == left*都一样的。
+
+代码实现如下
+
+```java
+/**
+     * 双路原地排序
+     *
+     * @param arr   数组
+     * @param left  左区间
+     * @param right 右区间
+     * @param <E>   返回泛型
+     * @return int 返回基准点pivot所在的index位置
+     */
+    private static <E extends Comparable<E>> int partition2(E[] arr, int left, int right) {
+        // 解决基准点是left而不是随机值的问题
+        // 第二版 想要生成一个随机值[left,right]
+        // 因为nextInt里面的数字是不包含的 所以要 + 1
+        int p = left + (new Random()).nextInt(right - left + 1);
+        // 这里就是交换left和p，保证了下面的j其实不是第一个，而是上面生成的那个p的随机
+        swap(arr, left, p);
+
+        // 新的循环不变量
+        // arr[left+1,i-1] <= v;arr[j+1,right]>=v
+        // 这2个指针，一个指针是从left+1开始，一个是从最后面开始。
+        int i = left + 1, j = right;
+
+        while (true) {
+            // i<=j 证明还有未遍历的 <0 证明要继续，因为>=0就要停住了
+            while (i <= j && arr[i].compareTo(arr[left]) < 0) {
+                i++;
+            }
+            // j >= i 证明还有未遍历的 这里j因为是从右向左进行遍历，所以要求必须要>0
+            // 小于就终止了
+            while (j >= i && arr[j].compareTo(arr[left]) > 0) {
+                j--;
+            }
+            // 为什么i要>=j，而不是i>j。i=j 证明同一个元素
+            if (i >= j) break;
+            // 上面2个都停住了，证明都遇到了真命天子。需要交换+向前走
+            swap(arr, i, j);
+            i++;
+            j--;
+        }
+
+        // 以上流程全部走完的话，这里依然没有结束arr[left] 也就是基准点，还没有回归原位
+        // 进行最后一次交换，然后让left到该到的位置
+        swap(arr, left, j);
+        // 为什么最后要返回j 因为这个j其实就是我们需要的基准点的原位
+        return j;
+    }
+```
+
+## 3. 复杂度分析
+
+partition那个点的选择，不一定。 所以是一个随机算法，实际意义很低，所以不能用最坏复杂度。
+
+最坏复杂度O(n**2) → 概率极低
+
+数学期望角度 → 其实本质就是看平均值，虽然不能保证每一次都是平分，所以就是平均。
+
+**层数的期望值 ：O<u>(logn)</u>** **复杂度期望值：<u>O(nlogn)</u>**
+
+![image-20210807030053640](https://raw.githubusercontent.com/chihokyo/image_host/master/20210807030054.png)
+
+> 普通算法：看最差 能找到一组数据能恶化到100%
+>
+> 随机算法：看期望 没有一组数据能恶化到100%
+>
+> 多次调用不一定会恶化到100%，所以可以尝试均摊分析。
