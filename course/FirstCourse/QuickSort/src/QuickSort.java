@@ -116,6 +116,56 @@ public class QuickSort {
         return j;
     }
 
+
+
+    public static <E extends Comparable<E>> void sort3ways(E[] arr) {
+        Random rnd = new Random();
+        sort3ways(arr, 0, arr.length - 1, rnd);
+    }
+
+    /**
+     * 三路快速排序
+     * @param arr 数组
+     * @param left 左区间
+     * @param right 有区间
+     * @param rnd 随机数
+     * @param <E> void
+     */
+    public static <E extends Comparable<E>> void sort3ways(E[] arr, int left, int right, Random rnd) {
+        // 这里递归终止条件就是左边大于右边
+        if (left >= right) return;
+
+        // 生成[left, right] 随机
+        int p = left + rnd.nextInt(right - left + 1);
+        swap(arr, left, p);
+
+        // 这里开始真正的三路排序
+        // arr[left+1,lt]<v;arr[lt+1,gt-1]=v;arr[gt,right]>v
+        // 以下初始值都是空的
+        int lt = left, i = left + 1, gt = right + 1;
+        // 为什么用while而不是用for，因为不一定每次都是i++
+        // 只要left<gt证明循环并没有结束
+        while (i < gt) {
+            if (arr[i].compareTo(arr[left]) < 0) {
+                //　lt先向后走，扩充空间。然后交换，然后i++继续向前走
+                lt++;
+                swap(arr, i, lt);
+                i++;
+            } else if(arr[i].compareTo(arr[left]) > 0) {
+                gt--; // 从后向前走 继续缩小范围，就是扩充
+                swap(arr, i, gt);
+                // i++ 不用++的，这是因为i这个位置目前是交换后gt的元素并没有比较
+            } else {
+                i++;
+            }
+        }
+
+        swap(arr, left, lt);
+        // 执行完上面的步骤之后 应该是这样的 arr[left,lt-1]<v;arr[lt,gt]=v;arr[gt+1,right]>v
+        sort3ways(arr, left, lt - 1, rnd);
+        sort3ways(arr, gt, right, rnd);
+
+    }
     private static <E> void swap(E[] arr, int i, int j) {
         E t = arr[i];
         arr[i] = arr[j];
@@ -149,27 +199,33 @@ public class QuickSort {
 
         Integer[] arr = ArrayGenerator.generateRandomArray(n, n);
         Integer[] arr2 = Arrays.copyOf(arr, arr.length);
+        Integer[] arr3 = Arrays.copyOf(arr, arr.length);
 
 
         System.out.println("Random Array");
         SortingHelper.sortTest("QuickSort", arr);
         SortingHelper.sortTest("QuickSort2Ways", arr2);
+        SortingHelper.sortTest("QuickSort3Ways", arr3);
         System.out.println();
 
         arr = ArrayGenerator.generateOrderArray(n);
         arr2 = Arrays.copyOf(arr, arr.length);
+        arr3 = Arrays.copyOf(arr, arr.length);
 
         System.out.println("Ordered Array");
         SortingHelper.sortTest("QuickSort", arr);
         SortingHelper.sortTest("QuickSort2Ways", arr2);
+        SortingHelper.sortTest("QuickSort3Ways", arr3);
         System.out.println();
 
         arr = ArrayGenerator.generateRandomArray(n, 1);
         arr2 = Arrays.copyOf(arr, arr.length);
+        arr3 = Arrays.copyOf(arr, arr.length);
 
         System.out.println("Same Value Array");
         // SortingHelper.sortTest("QuickSort", arr);
         SortingHelper.sortTest("QuickSort2Ways", arr2);
+        SortingHelper.sortTest("QuickSort3Ways", arr3);
     }
 
 }
