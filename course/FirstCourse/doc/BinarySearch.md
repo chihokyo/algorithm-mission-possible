@@ -101,3 +101,68 @@ class Solution {
 }
 ```
 
+## 3. 循环法
+
+非递归的方法，用的是循环缩小范围法。（修改边界）。引进了循环不变量。
+
+`data[left, right]` 内找 target
+
+```java
+/**
+ * 非递归实现二分法
+ * @param data 数组
+ * @param target 目标
+ * @param <E> 返回泛型
+ * @return int 返回目标所在的index
+ */
+public static <E extends Comparable<E>> int search(E[] data, E target) {
+    int left = 0, right = data.length - 1;
+    // 说明还有未循环完的，和递归正好想法的条件
+    // 循环不变量 data[left, right] 内找target
+    while (left <=  right) {
+        int mid = left + (right - left) / 2;
+        if (data[mid].compareTo(target) == 0) return mid;
+        // 小于0 target的值大于mid。想后找。
+        if (data[mid].compareTo(target) < 0) {
+            left = mid + 1;
+        } else {
+            // target的值小于mid，向前找。
+            right = mid - 1;
+        }
+    }
+    // 全部循环完毕也没有
+    return -1;
+}
+// 直接进行调用
+public static void main(String[] args) {
+    Integer[] nums3 = {0, 1, 3, 4, 5, 9, 12, 13};
+    Integer[] nums4 = {5};
+    int result3 = BinarySearch.search(nums, 9);
+    int result4 = BinarySearch.search(nums2, 5);
+    System.out.println(result3);
+    System.out.println(result4);
+}
+```
+
+这样的话那一道LeetCode的题目解答就是
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while(left <= right) {
+            int mid = left + (right - left) / 2;
+            if(nums[mid] == target) return mid;
+            if(nums[mid] > target) {
+                // mid还要比target大 向前继续找
+                right = mid - 1;
+            } else {
+                // 向后找
+                left = mid + 1;
+            }
+        }       
+        return -1; 
+    }
+}
+```
+
