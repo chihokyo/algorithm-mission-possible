@@ -36,7 +36,7 @@ i就是j+1，然后慢慢走路，i一直向前走，遇到了第一个真命天
 
 ![截屏2021-08-05 23.38.39](https://raw.githubusercontent.com/chihokyo/image_host/master/20210805233843.png)
 
-那么结果就是i和j进行交换，相当于小于的4这个数字的2挪动到了前面，而不是在后面了。可以看出来依然是维持着循环不变量的。![截屏2021-08-05 23.45.55](https://raw.githubusercontent.com/chihokyo/image_host/master/20210805234558.png)
+那么结果就是*arr[i]*和*arr[j]*进行交换，相当于小于的4这个数字的2挪动到了前面，而不是在后面了。可以看出来依然是维持着循环不变量的。![截屏2021-08-05 23.45.55](https://raw.githubusercontent.com/chihokyo/image_host/master/20210805234558.png)
 
 继续向前走，会发现遇到了3。然后继续j++，交换。会发现一直还是维持循环不变量。
 
@@ -315,4 +315,219 @@ partition那个点的选择，不一定。 所以是一个随机算法，实际�
 
     }
 ```
+
+
+
+## Leetcode相关题解
+
+### 问题1 [颜色问题](https://leetcode-cn.com/problems/sort-colors/)
+
+```
+给定一个包含红色、白色和蓝色，一共 n 个元素的数组，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+此题中，我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+
+示例 1：输入：nums = [2,0,2,1,1,0]
+输出：[0,0,1,1,2,2]
+
+示例 2：输入：nums = [2,0,1]
+输出：[0,1,2]
+
+示例 3：输入：nums = [0]
+输出：[0]
+
+示例 4：输入：nums = [1]
+输出：[1]
+```
+
+```java
+public static void sortColors(int[] nums) {
+		// 三路的指针
+        int zero = -1, i = 0, two = nums.length;
+		
+        while(i < two) {
+            if (nums[i] == 0) {
+                zero++;
+                swap(nums, zero, i);
+                i++;
+            } else if (nums[i] == 2) {
+                two--;
+                swap(nums, two, i);
+            } else {
+                i++;
+            }
+        }
+    }
+
+public static void swap(int[] nums, int i, int j) {
+    int temp = nums[j];
+    nums[j] = nums[i];
+    nums[i] = temp;
+}
+
+public static void main(String[] args) {
+        // 测试题1 颜色分类
+        System.out.println("颜色分类");
+        int[] nums = {2,0,2,1,1,0}; 
+        QuickSortLeetCode.sortColors(nums);
+        System.out.println(Arrays.toString(nums)); // [0, 0, 1, 1, 2, 2]
+}
+```
+
+### 问题2 [数组中的第K个最大元素](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/)
+
+```
+给定整数数组 nums 和整数 k，请返回数组中第 k 个最大的元素。
+请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+
+示例 1: 输入: [3,2,1,5,6,4] 和 k = 2
+输出: 5
+示例 2: 输入: [3,2,3,1,2,4,5,5,6] 和 k = 4
+输出: 4
+```
+
+一行流。
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+		Arrays.sort(nums);
+        // 这里需要理解，第K大是什么意思。第1大，证明最大(arr[len-1])，第2大，证明第2大arr[len-1]。
+        // 所以从小到大的，第k大就是arr[len-k]
+        return nums[nums.length - k];
+    }
+}
+```
+
+一点点剖析的算法
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        // 随机数
+        Random rnd = new Random();
+        // 这里需要理解，第K大是什么意思。第1大，证明最大(arr[len-1])，第2大，证明第2大arr[len-1]。
+        return selectK(nums, 0, nums.length - 1, nums.length - k, rnd);
+    }
+
+    private int selectK(int[] nums, int left, int right, int k, Random rnd){
+        int p = partition(nums, left, right, rnd);
+        if(k == p) return nums[p];
+        // 递归开始
+        // k 大于这个 p 说明目标在后面
+        if(k > p) {
+            return selectK(nums, p + 1, right, k, rnd);
+        } else {
+            // k 小于这个 p 说明目标在前面 
+            return selectK(nums, left, p - 1, k, rnd);
+        }
+    }
+	
+    // 本质是一个双路排序
+    private int partition(int[] nums, int left, int right, Random rnd) {
+        int p = left + rnd.nextInt(right - left + 1);
+        swap(nums, left, p);
+        int i = left + 1, j = right;
+        while(true) {
+            while(i <= j && nums[i] < nums[left]) {
+                i++;
+            }
+            while(j >= i && nums[j] > nums[left]) {
+                j--;
+            }
+            if(i >= j) break;
+            swap(nums, i, j);
+            i++;
+            j--;
+        }
+
+        swap(nums, left, j);
+        return j;
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] =  nums[j];
+        nums[j] = temp;
+    }
+}
+```
+
+### 问题3 [最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
+其实这一题跟上面是异曲同工的，只不过这一题求的是最小的K个数。
+
+```
+输入整数数组 arr ，找出其中最小的 k 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+
+示例 1：输入：arr = [3,2,1], k = 2
+输出：[1,2] 或者 [2,1]
+
+示例 2：输入：arr = [0,1,2,1], k = 1
+输出：[0]
+```
+
+```java
+import java.util.Arrays;
+
+class Solution {
+    public int[] getLeastNumbers(int[] arr, int k) {
+        if(k == 0) return new int[0];
+        Random rnd = new Random();
+        // 注意点1 这里要注意下面的k是最小的k，如果要找个数为k,可以看出来selectK得出来的是index，而不是个数
+        // 所以需要k-1
+        selectK(arr, 0, arr.length - 1, k - 1, rnd);
+        return Arrays.copyOf(arr, k);
+    }
+
+    private int selectK(int[] nums, int left, int right, int k, Random rnd){
+        int p = partition(nums, left, right, rnd);
+        if(k == p) return nums[p];
+        if(k > p) {
+            return selectK(nums, p + 1, right, k, rnd);
+        } else {
+            return selectK(nums, left, p - 1, k, rnd);
+        }
+    }
+
+    private int partition(int[] nums, int left, int right, Random rnd){
+        int p = left + rnd.nextInt(right - left + 1);
+        swap(nums, left, p);
+
+        int i = left + 1, j = right;
+        while(true) {
+            while(i <= j && nums[i] < nums[left]) {
+                i++;
+            }
+            while(j >= i && nums[j] > nums[left]) {
+                j--;
+            }
+            if(i >= j) break;
+            swap(nums, i, j);
+            i++;
+            j--;
+        }
+
+        swap(nums, left, j);
+        return j;
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+```
+
+
+
+## 回忆总结
+
+**原地排序** → 遇到比自己大的，就继续向前走，遇到比自己小的，j先移动（扩大自己循环不变量的位置），然后交换，i继续向前走。`arr[left+1, j] < v; arr[j+1, right] >= v;`
+
+**双路排序** → 双指针，一个在前，一个在后。前面遇到比自己大的停住（因为循环不变量的前部分是要小于自己的），后面遇到比自己小的停住（同理），前后都停止之后，双方交换队员。然后双指针正常向前走，知道，2个指针相遇or前指针大于后指针。`arr[left+1, i-1] <= v; arr[j+1, right] >= v` 其实这个我是有疑问的，为什么是i-1？j-1?后来想想，这只是指针指向的问题，看前面的图就知道了。顺便这个双路指针，前后都是==的，也就是说在i=j这个时候，2个应该指向的是同一值，
+
+**三路排序** → 三指针，一个移动的指针，两个范围指针。这个移动的指针i遇到比基准点小的，那么就要扩充lt, 然后交换，然后继续向前走(i++)。如果遇到比自己大的，那么gt就继续缩小，然后向前走(i++)，遇到和自己一样的，就继续向前走(i++)。arr[left+1,lt] < v;arr[lt+1,gt-1] == v;arr[gt,right] > v`。这里到最后的结果，也就是真正执行完之后，应该是这样的。`arr[left,lt-1] < v;arr[lt,gt] == v;arr[gt+1,right] > v`
+
+
 
