@@ -7,7 +7,7 @@
 ```java
 MergeSort(arr, left, right);
 // 对arr的 l 和 r排序
-Me rgeSort(arr, left, right){
+MergeSort(arr, left, right){
     // 分开
     int mid = (left + right) / 2;
     MergeSort(arr, left, mid)

@@ -1,11 +1,5 @@
 # 快速排序
 
-基本思路，先分分分。在排排排。
-
-哇哦，这个图很清晰明了。
-
-![截屏2021-07-04 23.35.51](https://raw.githubusercontent.com/chihokyo/image_host/master/20210704233558.png)
-
 ## 1. 第一个难点
 
 一个数组 8 6 4 9 12 1 0 这样的一个数组，首先我们随便指定一个。比如8，
@@ -408,7 +402,6 @@ class Solution {
         // 这里需要理解，第K大是什么意思。第1大，证明最大(arr[len-1])，第2大，证明第2大arr[len-1]。
         return selectK(nums, 0, nums.length - 1, nums.length - k, rnd);
     }
-
     private int selectK(int[] nums, int left, int right, int k, Random rnd){
         int p = partition(nums, left, right, rnd);
         if(k == p) return nums[p];
@@ -451,6 +444,57 @@ class Solution {
     }
 }
 ```
+
+下面写一个 **非递归实现 + 原地排序** 的写法
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        Random rnd = new Random();
+        int len = nums.length;
+        int target = len - k;
+        int left = 0;
+        int right = len - 1;
+        while(true) {
+            int pivot = partition(nums, left, right, rnd);
+            if(pivot > target) {
+                right = pivot - 1;
+            } else if (pivot < target) {
+                left = pivot + 1;
+            } else {
+                return nums[pivot];
+            }
+        }
+    }
+
+    private int partition(int[] nums, int left, int right, Random rnd){
+        // 随机点
+        int r = left + rnd.nextInt(right - left + 1);
+        swap(nums, left, r);
+
+        // 原地排序
+        int j = left;
+        for(int i = j + 1; i <= right; i++) {
+            // 大于继续走，小于执行下面
+            if(nums[i] < nums[left]) {
+                // 向前走(扩充容量)，在交换
+                j++;
+                swap(nums, i, j);
+            }
+        }
+        swap(nums, left, j);
+        return j;
+    }
+
+    private void swap(int[] nums, int i, int j){
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+```
+
+
 
 ### 问题3 [最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
 
