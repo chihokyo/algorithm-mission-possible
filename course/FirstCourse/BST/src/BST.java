@@ -142,4 +142,74 @@ public class BST<E extends Comparable<E>> {
         }
     }
 
+    /**
+     * 查询二分搜索树里是否有元素e
+     *
+     * @param e 元素e
+     * @return boolean 是否存在
+     */
+    public boolean contains(E e) {
+        return contains(root, e);
+    }
+
+    // 以node为根的二分搜索树是否有e 递归实现
+    // 这里的递归，大半夜终于开窍了以下，其实就是一个个递归检查node
+    private boolean contains(Node node, E e) {
+        if (root == null) {
+            return false;
+        }
+        if (e.compareTo(node.e) == 0) {
+            return true;
+        } else if (e.compareTo(node.e) > 0) {
+            return contains(root.left, e);
+        } else {
+            return contains(root.right, e);
+        }
+    }
+
+    /**
+     * 二分搜索树前序遍历
+     */
+    public void preOrder() {
+        preOrder(root);
+    }
+
+    // 前序遍历以node为根递归进行遍历
+    private void preOrder(Node node) {
+        if (node == null) {
+            return;
+        }
+        System.out.println(node.e);
+        preOrder(node.left);
+        preOrder(node.right);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        generateBSTString(root, 0, res);
+        return res.toString();
+    }
+
+    private void generateBSTString(Node node, int depth, StringBuilder res) {
+        if (node == null) {
+            res.append(generateDepthString(depth)).append("null\n");
+            return;
+        }
+        res.append(generateDepthString(depth)).append(node.e).append("\n");
+        generateBSTString(node.left, depth + 1, res);
+        generateBSTString(node.right, depth + 1, res);
+    }
+
+    // 根据层数输出*，根节点就是0
+    private String generateDepthString(int depth) {
+        // StringBuilder res = new StringBuilder();
+        // for (int i = 0; i < depth; i++) {
+        //     res.append("*");
+        // }
+        // return res.toString();
+        // 上面一大堆，IDE提醒我可以这样替换。
+        // 那要我干什么
+        return "*".repeat(Math.max(0, depth));
+    }
 }
