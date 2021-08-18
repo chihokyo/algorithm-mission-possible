@@ -335,3 +335,100 @@ private String generateDepthString(int depth) {
 }
 ```
 
+### 中序遍历
+
+**左→中→右**
+
+因为左子树都要比根小，右子树都比根大。所以中序遍历天然的出来就是一个已经排序好的。
+
+![image-20210819004306033](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210819004307.png)
+
+```java
+/**
+ * 二分搜索树中序遍历
+ */
+public void inOrder() {
+    inOrder(root);
+}
+
+private void inOrder(Node node) {
+    if (node == null) {
+        return;
+    }
+    inOrder(node.left);
+    System.out.println(node.e);
+    inOrder(node.right);
+}
+```
+
+### 后序遍历
+
+**左→右→中**
+
+后续排序有一个应用，就是为二分搜索树释放内存。因为是把孩子全部给释放出来。
+
+![image-20210819004330744](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210819004331.png)
+
+```java
+/**
+ * 二分搜索树后序遍历
+ */
+public void postOrder() {
+    postOrder(root);
+}
+
+private void postOrder(Node node) {
+    if (node == null) {
+        return;
+    }
+    postOrder(node.left);
+    postOrder(node.right);
+    System.out.println(node.e);
+}
+```
+
+> 本质上就是根在什么时候访问，就叫什么。比如前序，就是根前，中序，就是根中访问。
+
+总结一下规律的图，应该就是这样。
+
+![image-20210819004401236](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210819004403.png)
+
+### 前序遍历非递归写法
+
+示意图，要有一个栈用来存储临时的节点。按照下面这个逻辑，以没一个节点访问的顺序，访问root之后，就看有没有**右左子树**，按照右，左的顺序压栈，因为后入先出！
+
+![image-20210819005255184](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210819005256.png)
+
+```java
+/**
+  * 非递归实现二分搜索树前序遍历
+  */
+public void preOrderNotR() {
+    // 新建一个栈用来存储
+    // 压入root
+    // 判断一下是否为空
+    // 不为空就pop弹出然后记录以下，以便于下一次寻找左右子树
+    // 打印输出
+    // 如果左子树不为空，压
+    // 如果右子树不为空，压
+    Stack<Node> stack = new Stack<>();
+    stack.push(root);
+    while (!stack.isEmpty()) {
+        Node cur = stack.pop();
+        System.out.println(cur.e);
+        if (cur.right != null) {
+            stack.push(cur.right);
+        }
+        if (cur.left != null) {
+            stack.push(cur.left);
+        }
+    }
+}
+```
+
+可以看出来非递归实现的话，需要多余的一个数据结构来实现。
+
+### 关于层序遍历
+
+其实前面的前序中序后序都是一个深度遍历，都是根据
+
