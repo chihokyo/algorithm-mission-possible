@@ -430,5 +430,52 @@ public void preOrderNotR() {
 
 ### 关于层序遍历
 
-其实前面的前序中序后序都是一个深度遍历，都是根据
+其实前面的前序中序后序都是一个深度遍历，都是根据深度优先的。层序就是一层一层遍历，先遍历完一层在进入下一层进行遍历。
 
+**DFS** => Depth First Search 深度优先
+**BFS** => Breadth First Search 广度优先
+
+我自己写的一篇文章曾经用Python实现了这俩遍历。[『二叉树』详解「广度遍历・深度遍历」的Python实现](https://chihokyo.com/post/17/)
+
+![image-20210819011545070](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210819011546.png)
+
+代码实现
+
+```java
+/**
+  * 二分搜索树的层序遍历（广度优先，一层层来）
+  */
+public void levelOrder() {
+    // 队列数据类型 因为队列是个接口 所以要用链表多态实现
+    // 根节点入队
+    // 如果节点不为空
+    // 出队并且保存临时节点
+    // 输出这个临时节点元素
+    // 如果临时节点左边不为空，入队
+    // 如果临时节点右边不为空，入队
+    Queue<Node> queue = new LinkedList<>();
+    queue.add(root);
+    while (!queue.isEmpty()) {
+        Node cur = queue.remove();
+        System.out.println(cur.e);
+        if (cur.left != null) {
+            queue.add(cur.left);
+        }
+        if (cur.right != null) {
+            queue.add(cur.right);
+        }
+    }
+}
+```
+
+**广度优先遍历的意义**
+
+在寻找一个值的时候广度其实是有优势的，因为是一层层的进行遍历，所以比起深度那种一直到最低层的遍历来说，可以在最早的阶段找到你想要的值，比如一个值在一棵树的中间层，那么你一次次的深度到底也不能找到，但是层序的话到中间也许就能找到了。
+
+常用于算法设计中，最短路径。
+
+## 删除操作
+
+### 删除最小值和最大值
+
+### 删除任意元素

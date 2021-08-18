@@ -1,3 +1,5 @@
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 public class BST<E extends Comparable<E>> {
@@ -241,6 +243,31 @@ public class BST<E extends Comparable<E>> {
         postOrder(node.left);
         postOrder(node.right);
         System.out.println(node.e);
+    }
+
+    /**
+     * 二分搜索树的层序遍历（广度优先，一层层来）
+     */
+    public void levelOrder() {
+        // 队列数据类型 因为队列是个接口 所以要用链表多态实现
+        // 根节点入队
+        // 如果节点不为空
+        // 出队并且保存临时节点
+        // 输出这个临时节点元素
+        // 如果临时节点左边不为空，入队
+        // 如果临时节点右边不为空，入队
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            Node cur = queue.remove();
+            System.out.println(cur.e);
+            if (cur.left != null) {
+                queue.add(cur.left);
+            }
+            if (cur.right != null) {
+                queue.add(cur.right);
+            }
+        }
     }
 
 
