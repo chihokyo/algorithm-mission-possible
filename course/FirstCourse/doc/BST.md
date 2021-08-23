@@ -478,4 +478,127 @@ public void levelOrder() {
 
 ### 删除最小值和最大值
 
+要删除最大值和最小值，最重要的是先找到最大值和最小值。
+
+如果一个节点的最left之后没有值了，说明这个值就是最小值。最大值也同理。
+
+```java
+/**
+  * 二分搜索树：获取最小值
+  *
+  * @return 返回最小值
+  */
+public E minimum() {
+    if (size == 0) {
+        throw new IllegalArgumentException("BST is Empty");
+    }
+    // 这里获取的只是最小的节点，如果要值，需要.e
+    return minimum(root).e;
+}
+
+// 这里是获取最小值所在的节点node(e+2个叉)
+private Node minimum(Node node) {
+    // 没有左子树了 说明他就是最小的了
+    if (node.left == null) {
+        return node;
+    }
+    // 否则继续递归
+    return minimum(node.left);
+}
+
+/**
+  * 二分搜索树：获取最大值
+  *
+  * @return 返回最大值
+  */
+public E maximum() {
+    if (size == 0) {
+        throw new IllegalArgumentException("BST is Empty");
+    }
+    return maximum(root).e;
+}
+
+// 这里是获取最大值所在的节点node(e+2个叉)
+private Node maximum(Node node) {
+    if (node.right == null) {
+        return node;
+    }
+    return maximum(node.right);
+}
+```
+
+那么删除的逻辑也就不是这么难书写了。
+
+如果最小值是叶子节点→那么直接就删除这个节点就行，很easy
+
+![image-20210824003506545](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210824003514.png)
+
+但如果是 **22** 那种非叶子节点，有33和37节点的情况的话。
+
+- 删除
+- 整个右子树变成左子树（为什么是右子树变左子树，因为肯定没有左子树的，不然就不是最小咯）
+
+![image-20210824003907281](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210824003908.png)
+
+所以代码实现删除最小&最大元素
+
+```java
+/**
+  * 二分搜索树：删除最小值所在节点，返回最小值
+  *
+  * @return 最小值
+  */
+public E removeMin() {
+    E ret = minimum();
+    // 这点和add方法很像，关于为什么要返回并且root接收
+    // 主要是看下面的方法实现
+    root = removeMin(root);
+    return ret;
+}
+
+// 删除以node为根的二分搜索树的最小节点
+// 返回删除节点后的新的二分搜索树的根
+// 这里只要理解了上面就很容易理解，删除的是一个节点，
+// 返回的是新二分搜索树的这个根到底是什么？
+private Node removeMin(Node node) {
+    // 如果没有了left，说明自己就是到底了
+    // 那么要删除的就是自己，但是当前的节点如果有右子树的话怎么办
+    if (node.left == null) {
+        // 暂存右子树
+        Node rightNode = node.right;
+        // 这里让要删除脱离关系 让右子树为空，
+        node.right = null;
+        size--;
+        // 删除了旧了，那么你就是老大，就是新的二分搜索树的根
+        return rightNode;
+    }
+    // 还没走到底
+    node.left = removeMin(node.left);
+    return node;
+}
+
+/**
+  * 二分搜索树：删除最大值所在节点，返回最大值
+  *
+  * @return 最大值
+  */
+public E removeMax() {
+    E ret = maximum();
+    root = removeMax(root);
+    return ret;
+}
+
+private Node removeMax(Node node) {
+    if (node.right == null) {
+        Node leftNode = node.left;
+        node.left = null;
+        size--;
+        return leftNode;
+    }
+    node.right = removeMax(node.right);
+    return node;
+}
+```
+
 ### 删除任意元素
+
