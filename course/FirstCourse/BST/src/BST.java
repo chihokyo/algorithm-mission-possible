@@ -335,6 +335,50 @@ public class BST<E extends Comparable<E>> {
         return node;
     }
 
+    /**
+     * 二分搜索树：删除任意元素
+     *
+     * @param e 要删除的值
+     */
+    public void remove(E e) {
+        root = remove(root, e);
+    }
+
+    // 删除以node为节点的二分搜索树里为e的值
+    // 返回删除节点后新的二分搜索树的根
+    private Node remove(Node node, E e) {
+        if (node == null) return null;
+        if (e.compareTo(node.e) < 0) {
+            node.left = remove(node.left, e);
+            return node;
+        } else if (e.compareTo(node.e) > 0) {
+            node.right = remove(node.right, e);
+            return node;
+        } else { // e == node.e 已经找到了 开始删除
+            // 左边是空，那么直接把右边的挂在新的上
+            if (node.left == null) {
+                Node rightNode = node.right;
+                node.right = null;
+                size--;
+                return rightNode;
+            }
+            // 右边是空，那么直接把左边的挂在新的上
+            if (node.right == null) {
+                Node leftNode = node.left;
+                node.left = null;
+                size--;
+                return leftNode;
+            }
+            // 左右都不是空
+            // 后继的话 就是右子树里最小的，顶替掉待删除的节点
+            Node successor = minimum(node.right); // 找到这个最小的保存
+            successor.right = removeMin(node.right); // 这里最难理解分解一下remove这个操作相当于删除并且返回此时的根节点，这个时候返回的正好给了替代品的右侧 右边挂靠成功
+            successor.left = node.left; // 左边挂靠
+            node.left = node.right = null; // 左右都结束了 清空
+            return successor; // 返回这个节点
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();

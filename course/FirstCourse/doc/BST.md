@@ -602,3 +602,66 @@ private Node removeMax(Node node) {
 
 ### 删除任意元素
 
+这个删除任意元素其实是分情况的，感觉比较复杂。
+
+删除的第一步就是先找，找到之后才能删除。找到之后又分为下面的情况。
+
+- 只有左子树 → 删除下图**29这个node**
+
+- 只有右子树→ 删除下图**25这个node**
+
+- 左右子树都有 （**最麻烦**）
+
+  - **后继** ①找到比待删除的节点更大的最小节点（右子树的最小节点）②用这个节点顶替待删除的节点
+  - **前驱**①找到比待删除节点更小的最大节点（左子树的最大节点）②用这个节点顶替待删除的节点
+
+  ![image-20210824173701236](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210824173702.png)
+
+看图就可以看出来了，书写代码的话也会有点麻烦。
+
+```java
+/**
+  * 二分搜索树：删除任意元素
+  *
+  * @param e 要删除的值
+  */
+public void remove(E e) {
+    root = remove(root, e);
+}
+
+// 删除以node为节点的二分搜索树里为e的值
+// 返回删除节点后新的二分搜索树的根
+private Node remove(Node node, E e) {
+    if (node == null) return null;
+    if (e.compareTo(node.e) < 0) {
+        node.left = remove(node.left, e);
+        return node;
+    } else if (e.compareTo(node.e) > 0) {
+        node.right = remove(node.right, e);
+        return node;
+    } else { // e == node.e 已经找到了 开始删除
+        // 左边是空，那么直接把右边的挂在新的上
+        if (node.left == null) {
+            Node rightNode = node.right;
+            node.right = null;
+            size--;
+            return rightNode;
+        }
+        // 右边是空，那么直接把左边的挂在新的上
+        if (node.right == null) {
+            Node leftNode = node.left;
+            node.left = null;
+            size--;
+            return leftNode;
+        }
+        // 左右都不是空
+        // 后继的话 就是右子树里最小的，顶替掉待删除的节点
+        Node successor = minimum(node.right); // 找到这个最小的保存
+        successor.right = removeMin(node.right); // 这里最难理解分解一下remove这个操作相当于删除并且返回此时的根节点，这个时候返回的正好给了替代品的右侧 右边挂靠成功
+        successor.left = node.left; // 左边挂靠
+        node.left = node.right = null; // 左右都结束了 清空
+        return successor; // 返回这个节点
+    }
+}
+```
+
