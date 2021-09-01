@@ -141,3 +141,124 @@ public class LinkedListSet<E> implements Set<E> {
 
 ```
 
+## 集合的复杂度分析
+
+上面可以看出来**链表是慢于平衡二叉树**的。
+
+写一个测试速度函数
+
+```java
+import java.util.ArrayList;
+
+public class Main {
+    private static double testSet(Set<String> set, String filename) {
+        long startTime = System.nanoTime();
+
+        System.out.println(filename);
+        ArrayList<String> words = new ArrayList<>();
+        if (FileOperation.readFile(filename, words)) {
+            System.out.println("Total words: " + words.size());
+            for (String word : words) {
+                set.add(word);
+            }
+            System.out.println("Total different words: " + set.getSize());
+        }
+
+        long endTime = System.nanoTime();
+        return (endTime - startTime) / 1_000_000_000.0;
+
+    }
+
+    public static void main(String[] args) {
+        String filename = "pride-prejudice.txt";
+        BSTSet<String> bstSet = new BSTSet<>();
+        double time1 = testSet(bstSet, filename);
+        System.out.println("BST Set: " + time1 + " s");
+
+        System.out.println();
+
+        LinkedListSet<String> linkedListSet = new LinkedListSet<>();
+        double time2 = testSet(linkedListSet, filename);
+        System.out.println("LinkedList Set: " + time2 + " s");
+    }
+}
+```
+
+计算出来的速度 可以看出来确实平衡二叉树比较快
+
+```
+pride-prejudice.txt
+Total words: 125901
+Total different words: 6530
+BST Set: 0.127746125 s
+
+pride-prejudice.txt
+Total words: 125901
+Total different words: 6530
+LinkedList Set: 1.42124525 s
+```
+
+因为链表在查找是否有重复元素的时候，所以增（1） + 查（n） 的出来增就是`O(n)`
+
+链表删除的话，也需要先找。
+
+|      | LinkedList Set | BST Set                                      |
+| ---- | -------------- | -------------------------------------------- |
+| 增   | `O(n)`         | `O(h)` → 二分搜索树的高度 → 平均： `O(logN)` |
+| 查   | `O(n)`         | `O(h)` → 二分搜索树的高度 → 平均： `O(logN)` |
+| 删   | `O(n)`         | `O(h)` → 二分搜索树的高度 → 平均： `O(logN)` |
+
+那么n和高度h有什么关系呢。
+
+```
+0层 1节点
+
+1层 2节点
+
+2层 4节点
+
+...
+
+h-1层就是 2＾(h-1)节点
+所以就是等比数列最后计算出来就是 h = log2(n+1) →log2(n)→log(n)
+```
+
+所以这个级别就是log级别的。h和logn数字越大，差距越大。
+
+**但是也要看情况，因为二分搜索树在特殊情况下也有可能退化成链表。**
+
+## LeetCode集合算法
+
+[804. 唯一摩尔斯密码词](https://leetcode-cn.com/problems/unique-morse-code-words/)
+
+treeset平衡二叉树来实现，实际上哈希表也可以实现。
+
+```java
+class Solution {
+    public int uniqueMorseRepresentations(String[] words) {
+        String[] codes = {".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."};
+        TreeSet<String> set = new TreeSet<>();
+        for(String word: words) {
+            StringBuilder res = new StringBuilder();
+            for(int i = 0; i < word.length(); i++) {
+                // 这里的出来的 应该是字母对应的顺序数字 word.charAt(i) - 'a'] a对应的就是0 b 1 c 2 这里对应了 ascii
+                res.append(codes[word.charAt(i) - 'a']);
+            }
+            // 相同的会被忽略 不被添加
+            set.add(res.toString());
+        }
+        return set.size();
+    }
+}
+```
+
+#### 有序集合 无序集合
+
+链表实现的是无序的 ，是由插入顺序决定的。
+
+二分搜索树是有序的，通常有序集合都是基于搜索树实现的。但是无序的集合也有很好的实现，就是哈希表。
+
+#### 还有一种多重集合
+
+这种事可以有重复元素的
+

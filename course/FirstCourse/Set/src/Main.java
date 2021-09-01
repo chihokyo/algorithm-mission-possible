@@ -1,17 +1,34 @@
 import java.util.ArrayList;
 
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("Pride and Prejudice");
+    private static double testSet(Set<String> set, String filename) {
+        long startTime = System.nanoTime();
 
+        System.out.println(filename);
         ArrayList<String> words = new ArrayList<>();
-        FileOperation.readFile("pride-prejudice.txt", words);
-        System.out.println("Total words: " + words.size()); // 一共多少单词
-
-        BSTSet<String> set = new BSTSet<>();
-        for (String word : words) {
-            set.add(word);
+        if (FileOperation.readFile(filename, words)) {
+            System.out.println("Total words: " + words.size());
+            for (String word : words) {
+                set.add(word);
+            }
+            System.out.println("Total different words: " + set.getSize());
         }
-        System.out.println("Total different words: " + set.getSize()); // 使用集合计算不同单词
+
+        long endTime = System.nanoTime();
+        return (endTime - startTime) / 1_000_000_000.0;
+
+    }
+
+    public static void main(String[] args) {
+        String filename = "pride-prejudice.txt";
+        BSTSet<String> bstSet = new BSTSet<>();
+        double time1 = testSet(bstSet, filename);
+        System.out.println("BST Set: " + time1 + " s");
+
+        System.out.println();
+
+        LinkedListSet<String> linkedListSet = new LinkedListSet<>();
+        double time2 = testSet(linkedListSet, filename);
+        System.out.println("LinkedList Set: " + time2 + " s");
     }
 }
