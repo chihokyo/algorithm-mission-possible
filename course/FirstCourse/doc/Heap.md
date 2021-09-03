@@ -285,7 +285,93 @@ public E extractMax() {
 }
 ```
 
+## 实现一个堆排序 HeapSort()
 
+因为前面在实现`add()`方法的时候相当于每一次都维持堆结构，实质上已经是实现了堆排序的了。
 
-## 堆排序
+所以这一次**简单的堆排序**是这样实现的
+
+```java
+public class HeapSort {
+    private HeapSort(){}
+
+    public static <E extends Comparable<E>> void sort(E[] data) {
+        // 生成一个最大堆数据结构
+        // 开始添加到这个最大堆结构里，这样堆顶最大值
+        // 每一次都取出来最大值，这样添加到新到数组里。就完成了堆排序
+        MaxHeap<E> maxHeap = new MaxHeap<>();
+        for (E e: data) {
+            maxHeap.add(e);
+        }
+        // 注意这里是最大堆排序，如果为了完成从小到大，需要从最后一个元素，也就是data.length - 1 从后向前
+        for (int i = data.length - 1; i >= 0; i--) {
+            data[i] = maxHeap.extractMax();
+        }
+    }
+}
+```
+
+测试一下速度对比的话，是这样的。但是目前有性能问题。优化余地。
+
+- 没有原地排序，使用了多余的空间。
+
+```
+MergeSort, n = 1000000: 0.395324 s 
+QuickSort2Ways, n = 1000000: 0.258038 s 
+QuickSort3Ways, n = 1000000: 0.210295 s 
+HeapSort, n = 1000000: 0.495804 s 
+```
+
+可以**原地排序**的向下看。
+
+## 堆化（Heapify）
+
+实现一个`repalce()` 取出最大的元素后，放出一个新元素。相当于拿最大的替换掉新元素呗。
+
+2种思路
+
+- 先`extractMax()`，然后在进行`add()`。2次`O(logN)`操作。
+- 也可以直接替换掉堆顶元素之后`siftDown()`,1次`O(logN)`操纵。
+
+```java
+/**
+ * 取出堆顶元素，并替换成新元素e
+ *
+ * @return E 返回堆顶元素
+ */
+public E replace(E e) {
+    E ret = findMax();
+    data.set(0, e);
+    siftDown(0);
+    return ret;
+}
+```
+
+但其实有一个快速的方法就是堆化
+
+我以前貌似也在文章中写过，关于什么是堆化。
+
+> 将任意数组整理成堆的形状
+
+有序的数组不一定就是堆的形状哦。堆要求最大堆最小堆那种，父节点一定大于（小于）子节点那种。下面这个并不是满足堆化的。下面的数组并不是最大堆的性质。从最后一个非叶子节点开始计算。也就是**22**。然后开始对每一个最后一个非叶子节点开始向前遍历进行下沉`siftDown()`操作。
+
+**Q:用数组来表示一个完全二叉树，最后一个非叶子节点的index是多少？**
+
+非常简单，找到最后一个节点，然后计算父节点就可以了。`partent(data.size - 1)`
+
+![image-20210903145318953](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210903145320.png)
+
+最大堆完成后。
+
+![image-20210903150101377](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210903150102.png)
+
+因为一个个添加的时候每一次都是`O(nLongN)`，但是使用堆化操作，复杂度就是`O(n)`
+
+### 实现Heapify
+
+当用户传入一个数组到这个堆结构里，要求自动是一个最大堆结构。所以直接就可以写在构造函数里。 
+
+```java
+	
+```
 

@@ -136,4 +136,16 @@ public class MaxHeap<E extends Comparable<E>> {
         return ret;
     }
 
+    /**
+     * 取出堆顶元素，并替换成新元素e
+     *
+     * @return E 返回堆顶元素
+     */
+    public E replace(E e) {
+        E ret = findMax();
+        data.set(0, e);
+        siftDown(0);
+        return ret;
+    }
+
 }
