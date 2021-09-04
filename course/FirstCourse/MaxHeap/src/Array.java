@@ -31,6 +31,21 @@ public class Array<E> {
     }
 
     /**
+     * 为了堆新建的一个动态数组
+     *
+     * @param arr 数组
+     */
+    @SuppressWarnings("unchecked")
+    public Array(E[] arr) {
+        data = (E[]) new Object[arr.length];
+        // for (int i = 0; i < arr.length; i++) {
+        //     data[i] = arr[i];
+        // }
+        System.arraycopy(arr, 0, data, 0, arr.length);
+        size = arr.length;
+    }
+
+    /**
      * 获取数组实际大小
      *
      * @return int 实际大小

@@ -11,6 +11,19 @@ public class MaxHeap<E extends Comparable<E>> {
     }
 
     /**
+     * 为了堆实现构造函数，传入一个数组，生成一个新的动态数组
+     * 然后对倒数第一个非叶子节点，开始逐层遍历完成
+     *
+     * @param arr 数组
+     */
+    public MaxHeap(E[] arr) {
+        data = new Array<>(arr);
+        for (int i = getParent(arr.length - 1); i >= 0; i--) {
+            siftDown(i);
+        }
+    }
+
+    /**
      * 返回这个最大堆的size也就是数组的size
      *
      * @return int 大小

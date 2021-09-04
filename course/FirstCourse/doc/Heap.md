@@ -1,6 +1,6 @@
 # Heap（堆）
 
-## 基本概念
+## 1. 基本概念
 
 首先我看的这个教程是从优先队列开始引入堆这个概念的。
 
@@ -41,7 +41,7 @@
 
 ![img](https://miro.medium.com/max/16000/1*CMGFtehu01ZEBgzHG71sMg.png)
 
-## 堆的基本结构
+## 2. 堆的基本结构
 
 **一个堆就是一个特殊的树！** 那么二叉堆就是特殊的二叉树。特殊在哪里呢？
 
@@ -77,7 +77,7 @@
 
 ![image-20210902170227756](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210902170228.png)
 
-### Array代码实现
+### 2.1 Array代码实现
 
 首先用[动态数组](https://github.com/chihokyo/algorithm-mission-possible/blob/master/course/FirstCourse/Heap/src/Array.java)实现一个完全二叉树。其实就是新建了一个数组。并且初始化了一下。
 
@@ -162,7 +162,7 @@ public class MaxHeap<E extends Comparable<E>> {
 }
 ```
 
-## 添加元素Sift Up
+## 3. 添加元素Sift Up
 
 上面的只是了写了一些最基本的属性和方法，那么如何添加元素呢。其实向堆里面添加元素这个本身并不是很难，就像给一个数组末尾添加一个value一样
 
@@ -209,7 +209,7 @@ private void siftUp(int index) {
 }
 ```
 
-## 取出堆中最大元素Sift Down
+## 3. 取出堆中最大元素Sift Down
 
 堆中的最大元素就是**堆顶元素。** extract max，相当于是索引为0的元素。取出来之后，这样就分成2个堆了。2个堆合成1个堆的并不是很容易，于是就有了以下的技巧。
 
@@ -285,7 +285,7 @@ public E extractMax() {
 }
 ```
 
-## 实现一个堆排序 HeapSort()
+## 4. 实现一个堆排序 HeapSort()
 
 因为前面在实现`add()`方法的时候相当于每一次都维持堆结构，实质上已经是实现了堆排序的了。
 
@@ -324,7 +324,7 @@ HeapSort, n = 1000000: 0.495804 s
 
 可以**原地排序**的向下看。
 
-## 堆化（Heapify）
+## 5. 堆化（Heapify）
 
 实现一个`repalce()` 取出最大的元素后，放出一个新元素。相当于拿最大的替换掉新元素呗。
 
@@ -347,13 +347,13 @@ public E replace(E e) {
 }
 ```
 
-但其实有一个快速的方法就是堆化
+但其实有一个快速的方法就是堆化、
 
 我以前貌似也在文章中写过，关于什么是堆化。
 
 > 将任意数组整理成堆的形状
 
-有序的数组不一定就是堆的形状哦。堆要求最大堆最小堆那种，父节点一定大于（小于）子节点那种。下面这个并不是满足堆化的。下面的数组并不是最大堆的性质。从最后一个非叶子节点开始计算。也就是**22**。然后开始对每一个最后一个非叶子节点开始向前遍历进行下沉`siftDown()`操作。
+> 有序的数组不一定就是堆的形状哦。堆要求最大堆最小堆那种，父节点一定大于（小于）子节点那种。下面这个并不是满足堆化的。下面的数组并不是最大堆的性质。从最后一个非叶子节点开始计算。也就是**22**。然后开始对每一个最后一个非叶子节点开始向前遍历进行下沉`siftDown()`操作，下沉到根节点，每一个节点都变成了叶子节点。
 
 **Q:用数组来表示一个完全二叉树，最后一个非叶子节点的index是多少？**
 
@@ -361,7 +361,9 @@ public E replace(E e) {
 
 ![image-20210903145318953](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210903145320.png)
 
-最大堆完成后。
+这里就是22开始下沉，22完成之后13，13之后，28→17→15最大堆完成。。。。这里就是比较难以理解。
+
+![image-20210903153707355](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210903153708.png)
 
 ![image-20210903150101377](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210903150102.png)
 
@@ -371,7 +373,137 @@ public E replace(E e) {
 
 当用户传入一个数组到这个堆结构里，要求自动是一个最大堆结构。所以直接就可以写在构造函数里。 
 
+- 先给数组弄一个构造函数
+
 ```java
-	
+/**
+ * 为了堆新建的一个动态数组
+ *
+ * @param arr 数组
+ */
+@SuppressWarnings("unchecked")
+public Array(E[] arr) {
+    data = (E[]) new Object[arr.length];
+    // for (int i = 0; i < arr.length; i++) {
+    //     data[i] = arr[i];
+    // }
+    System.arraycopy(arr, 0, data, 0, arr.length);
+    size = arr.length;
+}
+```
+
+- 在给MaxHeap新建一个构造函数
+
+```java
+/**
+ * 为了堆实现构造函数，传入一个数组，生成一个新的动态数组
+ *
+ * @param arr 数组
+ */
+public MaxHeap(E[] arr) {
+    data = new Array<>(arr);
+}
+```
+
+- 逻辑书写
+
+为了堆实现构造函数，传入一个数组，生成一个新的动态数组
+然后对倒数第一个非叶子节点（也就是最后一个叶子的父节点），开始逐层遍历完成。
+
+这个构造函数实现之后就是 **普通数组 → 堆化结构的数组**
+
+```java
+// 从最后一个非叶子的父节点开始
+public MaxHeap(E[] arr) {
+    data = new Array<>(arr);
+    for (int i = getParent(arr.length - 1); i >= 0; i--) {
+        siftDown(i);
+    }
+}
+```
+
+上面的堆化就这么结束了。
+
+## 6. 堆排序的2种方式PK
+
+### 6.1 add()添加方式
+
+因为每一次add之后其实都是一个完整的堆结构。所以每一次root都是最大值，这样每次在取出来最大值放进去最新的数组。那么就是已经排序的，这也是上面我写过的。
+
+```java
+此处代码省略，上面有。
+```
+
+### 6.2 Heapify方式
+
+这个使用的就是上面的堆化方法写的，构造函数传入一个数组默认实现了一个堆化结构的数组。
+
+### 6.3 测试PK
+
+```java
+import java.util.Random;
+
+public class Main {
+
+    /**
+     * 测试堆排序速度
+     *
+     * @param testData 未排序数组
+     * @param isHeap   是否采用堆化
+     * @return double 速度
+     */
+    private static double testHeap(Integer[] testData, boolean isHeap) {
+        long startTime = System.nanoTime();
+
+        MaxHeap<Integer> maxHeap = new MaxHeap<>();
+        // 2种方式测试
+        if (isHeap) {
+            maxHeap = new MaxHeap<>(testData);
+        } else {
+            maxHeap = new MaxHeap<>();
+            for (int num : testData) {
+                maxHeap.add(num);
+            }
+        }
+
+        // 这里生成了一个新的数组
+        int[] arr = new int[testData.length];
+        for (int i = 0; i < testData.length; i++) {
+            // 这里是把已经排序好的数组结构只拿走最大的堆顶，放进去新的数组
+            arr[i] = maxHeap.extractMax();
+        }
+        // 测试数组是否排序好（从大到小）
+        for (int i = 1; i < testData.length; i++) {
+            // 前一个小于后一个
+            if (arr[i - 1] < arr[i]) {
+                throw new IllegalArgumentException("Error");
+            }
+        }
+        System.out.println("Test MaxHeap completed.");
+
+        long endTime = System.nanoTime();
+        return (endTime - startTime) / 1_000_000_000.0;
+    }
+
+    public static void main(String[] args) {
+        
+        /*===================测试添加操作和堆化操作=====================*/
+        System.out.println("====测试2种速度 添加操作PK堆化Heapify操作====");
+
+        int m = 10000000;
+        Random random2 = new Random();
+        Integer[] testData = new Integer[m];
+        for (int i = 0; i < m; i++) {
+            testData[i] = random2.nextInt(Integer.MAX_VALUE);
+        }
+
+        double time1 = testHeap(testData, false);
+        System.out.println("Without heapify: " + time1 + "s");
+        double time2 = testHeap(testData, true);
+        System.out.println("With heapify: " + time2 + "s");
+
+    }
+}
+
 ```
 
