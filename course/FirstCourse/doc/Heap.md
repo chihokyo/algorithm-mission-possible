@@ -213,6 +213,7 @@ private void siftUp(int index) {
 
 堆中的最大元素就是**堆顶元素。** extract max，相当于是索引为0的元素。取出来之后，这样就分成2个堆了。2个堆合成1个堆的并不是很容易，于是就有了以下的技巧。
 
+- 缓存第一个index为0的元素
 - 把最后一个元素复制到了堆顶root
 - 然后删除最后一个元素
 
@@ -347,7 +348,7 @@ public E replace(E e) {
 }
 ```
 
-但其实有一个快速的方法就是堆化、
+但其实有一个快速的方法就是堆化。
 
 我以前貌似也在文章中写过，关于什么是堆化。
 
@@ -438,6 +439,8 @@ public MaxHeap(E[] arr) {
 
 这个使用的就是上面的堆化方法写的，构造函数传入一个数组默认实现了一个堆化结构的数组。
 
+我感觉堆化，本质就是`siftDown()`
+
 ### 6.3 测试PK
 
 ```java
@@ -505,5 +508,72 @@ public class Main {
     }
 }
 
+```
+
+### 6.4 优化堆排序
+
+之前的堆排序需要先排序，然后一个个拿出来，这样就需要**额外的空间。**
+
+所以优化的目的就是→ **原地排序**
+
+那么优化的思路是什么呢?感觉就是一个数组首先默认是实现了最大堆的堆化的，然后取出第一个（此时第一个是最大），然后和最后一个交换，这样最后一个就是最大的。也就是说此时**[0, 倒数第2个]**，是没有排序好的，**[倒数第1个]**是排序好的。
+
+**①本来v是最大堆的最大的索引是index[0]**
+
+![image-20210911205739321](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210911205741.png)
+
+然后交换，交换之后w就不是最大堆了。然后`siftDown()`
+
+![image-20210911205636416](https://raw.githubusercontent.com/chihokyo/image_host/develop/20210911205637.png)
+
+如此继续下去，知道全部都交换完毕，就完成了原地排序。感觉还是使用循环不变量，通过缩小范围交换这样的方式来实现原地排序。貌似原地排序都是这样的方式，定义一个循环不变量，维持循环不变量（需要缩小范围），然后不断交换维持。就是这样的。
+
+#### 代码实现优化堆排序
+
+额外空间不需要了
+
+```java
+// 原地排序版本的
+public static <E extends Comparable<E>> void sort2(E[] data) {
+    if (data.length <= 0) return;
+    // 对倒数第一个非叶子节点，开始逐层遍历完成
+    for (int i = (data.length - 2) / 2; i >= 0; i--) {
+        siftDown(data, i, data.length);
+    }
+    // 都到这里了，就决定已经完成了堆化，然后index[0]就是最大值
+    for (int i = data.length - 1; i >= 0; i--) {
+        // 交换
+        swap(data, 0, i);
+        // 交换之后index[0]就不是最大值了，然后进行堆化
+        siftDown(data, 0, i);
+    }
+}
+
+// 这里就是对data[0, n]形成的堆，以k为索引，进行siftDown
+private static <E extends Comparable<E>> void siftDown(E[] data, int k, int n) {
+    // 循环结束条件 知道没有叶子（左子树没有就肯定是了，因为完全二叉树特性，左都没，右肯定没）
+    // 上面就是左孩子都已经越界了，超过了堆最大值，就说明左子树没有了。
+    while (2 * k + 1 < n) {
+        int j = 2 * k + 1; // 在这个循环里 data[k]和data[j]交换位置
+        // j+ 1 本质 右子树 说明有右子树
+        // 有右子树 && 右子树大于左子树
+        if (j + 1 < n && data[j + 1].compareTo(data[j]) > 0) {
+            j++; // j++ 这里就是右子树
+        }
+        // data[j] 是左右子树的最大值
+        if (data[k].compareTo(data[j]) >= 0) {
+            break;
+        }
+        // 如果小，就交换
+        swap(data, k, j);
+        k = j;
+    }
+}
+
+private static <E extends Comparable<E>> void swap(E[] data, int i, int j) {
+    E t = data[i];
+    data[i] = data[j];
+    data[j] = t;
+}
 ```
 

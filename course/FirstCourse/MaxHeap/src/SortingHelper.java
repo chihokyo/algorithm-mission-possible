@@ -35,6 +35,7 @@ public class SortingHelper {
             case "QuickSort2Ways" -> QuickSort.sort2ways(arr);
             case "QuickSort3Ways" -> QuickSort.sort3ways(arr);
             case "HeapSort" -> HeapSort.sort(arr);
+            case "HeapSort2" -> HeapSort.sort2(arr);
         }
 
         long endTime = System.nanoTime();
