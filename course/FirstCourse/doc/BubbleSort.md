@@ -28,6 +28,12 @@
 
 只需要进行n-1循环，因为都看循环，第n的时候就没有相邻的元素了。
 
+这里有一个需要注意的就是，外层循环本质是不涉及数据的交换，只是一个**次数计算**。刚开始我不明白外层循环的意义，这里不要想太深，外层的循环
+
+`for (int i = 0; i + 1 < data.length; i++)`
+
+本质上就是说，我要循环**总长度-1**次，我不参与对比。
+
 ```java
 import java.util.Arrays;
 
@@ -180,5 +186,52 @@ if (!isSwapped) break;
 代码实现
 
 ```java
+public static <E extends Comparable<E>> void sort(E[] data) {
+        // 外循环，只记录循环多少次
+        for (int i = 0; i + 1 < data.length; i++) {
+            for (int j = data.length - 1; j > i; j--) {
+                if (data[j - 1].compareTo(data[j]) > 0) {
+                    swap(data, j - 1, j);
+                }
+            }
+        }
+    }
+
+    // 优化1
+    public static <E extends Comparable<E>> void sort2(E[] data) {
+        for (int i = 0; i + 1 < data.length; i++) {
+            boolean isSwapped = false;
+            for (int j = data.length - 1; j > i; j--) {
+                if (data[j - 1].compareTo(data[j]) > 0) {
+                    swap(data, j - 1, j);
+                    isSwapped = true;
+                }
+            }
+            if (!isSwapped) break;
+        }
+    }
+
+    // 优化2
+    public static <E extends Comparable<E>> void sort3(E[] data) {
+        for (int i = 0; i + 1 < data.length; ) {
+            int lashSwappedIndex = data.length - 1; // 初始化就是index为最后
+            for (int j = data.length - 1; j > i; j--) {
+                if (data[j - 1].compareTo(data[j]) > 0) {
+                    swap(data, j - 1, j);
+                    lashSwappedIndex = j - 1;
+                }
+            }
+            i = lashSwappedIndex + 1; // 因为[0, lashSwappedIndex] 是已经排序OK的
+        }
+    }
+```
+
+这里需要注意的是优化2的一些小问题
+
+```
+第二个优化复杂一下，我们的外层循环，每一次不一定i++，因为内层循环的结果，可能可以让我们跳过更多轮的外层循环。因此，外层循环我们写成这样for(int i = 0; i + 1 < data.length; )，删掉了i++，i的变化在循环内控制。
+之后，我们在每轮循环中，设立一个新的变量lastSwappedIndex，记录最后的交换位置。因为现在，我们是从后向前查看相邻的数据对作调整，所以lastSwappedIndex的初值为data.length - 1，即最后一个元素的位置。
+在下面的第二轮循环过程中，一旦两个相邻的元素data[j - 1]和data[j]需要交换位置，我们就将lastSwappedIndex的值更新为j-1，即这两个元素前面一个元素的位置。因为，如果后续不再有数据的交换的话，我们能肯定，data[0...j-1]范围的元素一定有序了。
+因此，整个循环结束后，data[0...lastSwappedIndex]范围里的元素肯定有序了。那么i应该更新为多少？依然是，i可以表示整个数组有多少个元素已经有序了。那么data[0...lastSwappedIndex]范围里有多少元素？答案是lastSwappedIndex+1。所以，最后，i更新为lastSwappedIndex+1。
 ```
 

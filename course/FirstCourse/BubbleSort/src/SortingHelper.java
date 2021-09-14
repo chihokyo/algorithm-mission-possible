@@ -33,6 +33,9 @@ public class SortingHelper {
             case "BubbleSort" -> BubbleSort.sort(arr);
             case "BubbleSort2" -> BubbleSort.sort2(arr);
             case "BubbleSort3" -> BubbleSort.sort3(arr);
+            case "BubbleSortFront" -> BubbleSortFront.sort(arr);
+            case "BubbleSortFront2" -> BubbleSortFront.sort2(arr);
+            case "BubbleSortFront3" -> BubbleSortFront.sort3(arr);
         }
 
         long endTime = System.nanoTime();
