@@ -192,3 +192,74 @@ public static <E extends Comparable<E>> void sort2(E[] data) {
         }
     }
 ```
+
+## 优化2
+
+用**步长序列**可以优化
+
+h：1，2，4，8，16，32...  → 这里的步长是一个`2的n次方`
+
+h：1，4，13，40... → 这里的步长是`3n+1`
+
+那么如果使用3n+1的步长是如何实现呢？ 看下面👇🏻
+
+```java
+/**
+  * 希尔排序ShellSort
+  * 步长从2的n次方，变成3n+1的话
+  *
+  * @param data 数据
+  * @param <E>  泛型
+  */
+public static <E extends Comparable<E>> void sort3(E[] data) {
+    // 初始化分割
+    int h = 1;
+    while (h < data.length) {
+        h = h * 3 + 1;
+    }
+
+    // 只要还有
+    while (h >= 1) {
+        // data[h,n) 进行插入排序
+        for (int i = h; i < data.length; i++) {
+            E t = data[i];
+            int j;
+            for (j = i; j - h >= 0 && t.compareTo(data[j - h]) < 0; j -= h) {
+                data[j] = data[j - h];
+            }
+            data[j] = t;
+        }
+        // 每次结束
+        h /= 3; // 因为这里反正是取整 不信可以看看 40,13,4,1结果
+    }
+}
+```
+
+上面3个实现的速度PK
+
+```java
+ public static void main(String[] args) {
+        int n = 5000000;
+        Integer[] arr = ArrayGenerator.generateRandomArray(n, n);
+        Integer[] arr2 = Arrays.copyOf(arr, arr.length);
+        Integer[] arr3 = Arrays.copyOf(arr, arr.length);
+
+        SortingHelper.sortTest("ShellSort", arr);
+        SortingHelper.sortTest("ShellSort2", arr2);
+        SortingHelper.sortTest("ShellSort3", arr3);
+    }
+```
+
+```
+ShellSort, n = 5000000: 5.719476 s 
+ShellSort2, n = 5000000: 5.229278 s 
+ShellSort3, n = 5000000: 4.976240 s 
+```
+
+发现稍微优化一点点。
+
+那到底什么步长序列最好？ → 无人知晓
+
+### 超参数
+
+其实关于步长取多少，这是一个很复杂的数学问题。反正不管，这个步长可以说是**超参数**。貌似这个是一个机器学习概念，详情可以百度一下。
