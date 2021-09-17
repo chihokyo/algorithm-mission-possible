@@ -13,6 +13,13 @@ public class Main {
 
         SegmentTree<Integer> segmentTree = new SegmentTree<>(nums, Integer::sum);
 
+        System.out.println("打印");
         System.out.println(segmentTree);
+
+        System.out.println("区间查询");
+        System.out.println(segmentTree.query(0, 2)); // 1
+        System.out.println(segmentTree.query(2, 5)); // -1
+        System.out.println(segmentTree.query(0, 5)); // -3
+
     }
 }

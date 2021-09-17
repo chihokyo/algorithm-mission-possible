@@ -67,6 +67,8 @@ public class SegmentTree<E> {
         return data.length;
     }
 
+    // 因为线段树是不需要知道父亲parent的，所以就不实现了
+
     private int leftChild(int index) {
         return 2 * index + 1;
     }
@@ -75,8 +77,51 @@ public class SegmentTree<E> {
         return 2 * index + 2;
     }
 
-    // 因为线段树是不需要知道父亲parent的，所以就不实现了
+    /**
+     * 区间查询操作
+     *
+     * @param queryL 左区间
+     * @param queryR 有区间
+     * @return E 返回那个区间的数值
+     */
+    public E query(int queryL, int queryR) {
+        if (queryL < 0 || queryL >= data.length || queryR < 0 || queryR >= data.length) {
+            throw new IllegalArgumentException("Index is illegal");
+        }
 
+        return query(0, 0, data.length - 1, queryL, queryR);
+    }
+
+    /**
+     * 在以treeIndex为root的线段树[l,r]里，搜索范围[queryL,queryR]的值
+     *
+     * @param treeIndex root
+     * @param l         线段树范围
+     * @param r         线段树范围
+     * @param queryL    要查找的范围
+     * @param queryR    要查找的范围
+     * @return 泛型 返回值
+     */
+    private E query(int treeIndex, int l, int r, int queryL, int queryR) {
+        if (l == queryL && r == queryR) return tree[treeIndex];
+        int mid = l + (r - l) / 2;
+        int leftTreeIndex = leftChild(treeIndex);
+        int rightTreeIndex = rightChild(treeIndex);
+        //  1 要查找的目标比mid+1还要大，说明左边可以不要了
+        if (queryL >= mid + 1) {
+            // 1-1左孩子没有关系，直接到右子树去查找
+            return query(rightTreeIndex, mid + 1, r, queryL, queryR);
+            // 2 这里说明目标的右，比二分的还小。说明右边可以不要了
+        } else if (queryR <= mid) {
+            // 2-1 同理
+            return query(leftTreeIndex, l, mid, queryL, queryR);
+        }
+        // 3 横跨左右孩子，一部分在左边，一部分在右边
+        // 这里的第五个参数需要注意,为什么是mid，因为这个时候目标也被拆分了。
+        E leftRes = query(leftTreeIndex, l, mid, queryL, mid);
+        E rightRes = query(rightTreeIndex, mid + 1, r, mid + 1, queryR);
+        return merger.merge(leftRes, rightRes);
+    }
 
     @Override
     public String toString() {
