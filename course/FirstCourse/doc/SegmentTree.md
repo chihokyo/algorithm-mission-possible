@@ -223,3 +223,158 @@ private E query(int treeIndex, int l, int r, int queryL, int queryR) {
 }
 ```
 
+## LeetCode
+
+### [303. 区域和检索 - 数组不可变](https://leetcode-cn.com/problems/range-sum-query-immutable/)
+
+首先理解题意。
+
+```
+nums → [1,3,3,1,2]
+
+sums → [0,1,4,7,8,10]
+
+求索引index在[1,3]，那么答案就是7
+
+sumRange(1, 3) = sums[3 + 1] - sums[1] = 8 - 1 = 7
+```
+
+这一题看题目，因为数组是不可变的。所以还有一种前缀和的解法。但是先拿线段树解决一下。
+
+#### 线段树
+
+代码太多了，可以看提交记录。
+
+[区域和检索 - 数组不可变提交记录](https://leetcode-cn.com/submissions/detail/220555782/)
+
+#### 前缀和
+
+```java
+class NumArray {
+    int[] sums; // 初始化sums，不然非共享sumRange()没办法使用.
+
+    // 前缀和
+    public NumArray(int[] nums) {
+        int len = nums.length;
+        // 新建一个数组记录和
+        sums = new int[len + 1]; // 默认初始化的都是0
+        /* ----例子-----
+        nums → [1,3,3,1,2]
+        sums[0+1]=sums[0]+nums[0]=1+0=1
+        sums[1+1]=sums[1]+nums[1]=1+3=4
+        sums[2+1]=sums[2]+nums[2]=4+3=7
+        sums[3+1]=sums[3]+nums[3]=7+1=8
+        sums[4+1]=sums[4]+nums[4]=8+2=10
+        sums → [0,1,4,7,8,10]
+        */
+        for(int i = 0; i < len; i++) {
+            sums[i + 1] = sums[i] + nums[i];
+        }
+    }
+    
+    public int sumRange(int left, int right) {
+        /* ----例子-----
+        nums → [1,3,3,1,2]
+        sums → [0,1,4,7,8,10]
+        [1,3]=sums[3+1]-sums[1]=8-1=7
+        [2,4]=sums[4+1]-sums[2]=10-4=6
+        [0,4]=sums[4+1]-sums[0]=10-0=10
+        */
+        return sums[right + 1] - sums[left];
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(left,right);
+ */
+```
+
+下面有个本质和上面一模一样，就是变了一下起始条件。👆🏻用的是，new int[]的时候，默认所有数组都是0。↓这个是从1开始。
+
+而且这里的判断条件就从 `i < nums.length` 变成了 `i < sums.length`
+
+```java
+class NumArray {
+
+    int[] sums;
+
+    public NumArray(int[] nums) {
+        int len = nums.length;
+        sums = new int[len + 1];
+        sums[0] = 0;
+        for(int i = 1; i < sums.length; i++) {
+            /* ----例子-----
+            nums → [1,3,3,1,2]
+            sums[1]=sums[1-1]+nums[1-1]=1
+            sums[2]=sums[2-1]+nums[2-1]=4
+            sums[3]=sums[3-1]+nums[3-1]=7
+            sums[4]=sums[4-1]+nums[4-1]=8
+            sums[5]=sums[5-1]+nums[5-1]=10
+            sums → [0,1,4,7,8,10]
+            */
+            sums[i] = sums[i - 1] + nums[i - 1];
+        }
+    }
+    
+    public int sumRange(int left, int right) {
+        return sums[right + 1] - sums[left];
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(left,right);
+ */
+```
+
+### [307. 区域和检索 - 数组可修改](https://leetcode-cn.com/problems/range-sum-query-mutable/)
+
+这一题本质上和上面的303差不多，但就是这一题的数组是可以修改的。
+
+下面解法是错误的，因为复杂度update如果是n的话，那么m个更新就是`n * m`。
+
+```java
+class NumArray {
+    int[] sums;
+    int[] data; 
+
+    public NumArray(int[] nums) {
+        int len = nums.length;
+        // 新建一个一模一样的副本data
+        data = new int[len];
+        for(int i = 0; i < len; i++) {
+            data[i] = nums[i];
+        } 
+        sums = new int[len + 1];
+        for(int i = 0; i < len; i++) {
+            sums[i + 1] = sums[i] + nums[i];
+        }
+    }
+    
+    public void update(int index, int val) {
+        // 更改副本 复杂度是nn 因为要全部遍历
+        data[index] = val;
+        for(int i = index; i < data.length; i++) {
+            sums[i + 1] = sums[i] + data[i];
+        }
+    }
+    
+    public int sumRange(int left, int right) {
+        return sums[right + 1] - sums[left];
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * obj.update(index,val);
+ * int param_2 = obj.sumRange(left,right);
+ */
+```
+
+那么就引出了下面的问题，如何更新一个线段树
+
+## 更新操作update
