@@ -123,6 +123,49 @@ public class SegmentTree<E> {
         return merger.merge(leftRes, rightRes);
     }
 
+    /**
+     * 更新操作
+     *
+     * @param index 索引
+     * @param val   更新为val
+     */
+    public void set(int index, E val) {
+        if (index < 0 || index >= data.length) {
+            throw new IllegalArgumentException("Index is illegal");
+        }
+        data[index] = val; // 更新
+        // 更新本身是很快的 但是还要维持树结构，就是重新开始计算
+        // 所以下面就是递归寻找重新组成一个线段的过程
+        set(0, 0, data.length - 1, index, val);
+    }
+
+    /**
+     * 以treeIndex为root向下找到值并更新值
+     *
+     * @param treeIndex 根
+     * @param l         左边界
+     * @param r         右边界
+     * @param index     想找到的索引
+     * @param val       更新为
+     */
+    private void set(int treeIndex, int l, int r, int index, E val) {
+        if (l == r) {
+            tree[treeIndex] = val;
+            return;
+        }
+        int mid = l + (r - l) / 2;
+        int leftChildIndex = leftChild(treeIndex);
+        int rightChildIndex = rightChild(treeIndex);
+        // 目标index，比mid+1还大，说明左边全部没戏
+        if (index >= mid + 1) {
+            set(rightChildIndex, mid + 1, r, index, val);
+        } else {
+            set(leftChildIndex, l, mid, index, val);
+        }
+        tree[treeIndex] = merger.merge(tree[leftChildIndex], tree[rightChildIndex]);
+
+    }
+
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();
