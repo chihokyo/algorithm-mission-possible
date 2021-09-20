@@ -50,4 +50,27 @@ public class Trie {
             size++;
         }
     }
+
+    /**
+     * 查询单词是否在Trie中
+     *
+     * @param word 单词
+     * @return boolean
+     */
+    public boolean contains(String word) {
+        Node cur = root;
+        for (int i = 0; i < word.length(); i++) {
+            // 遍历到第一个字符
+            char c = word.charAt(i);
+            // 没有这个字符，证明根本没这个单词
+            if (cur.next.get(c) == null) {
+                return false;
+            }
+            // 有这个字符，那么就继续向下找
+            cur = cur.next.get(c);
+        }
+        // 到了这个节点，也就来到了最后
+        // 要看是否是尾
+        return cur.isWord;
+    }
 }
