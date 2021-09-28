@@ -73,4 +73,26 @@ public class Trie {
         // 要看是否是尾
         return cur.isWord;
     }
+
+    /**
+     * 查询是否在Trie里中以单词prefix为前缀
+     *
+     * @param prefix 前缀
+     * @return boolean
+     */
+    public boolean isPrefix(String prefix) {
+        // 当前节点为根节点root
+        Node cur = root;
+        for (int i = 0; i < prefix.length(); i++) {
+            // 遍历一个个字母
+            char c = prefix.charAt(i);
+            // 为空就是false
+            if (cur.next.get(c) == null) {
+                return false;
+            }
+            // 匹配条件，继续向下找
+            cur = cur.next.get(c);
+        }
+        return true;
+    }
 }
