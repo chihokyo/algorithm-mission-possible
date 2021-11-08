@@ -136,21 +136,21 @@ public class LinkedList<E> {
         if (index < 0 || index > size)
             throw new IllegalArgumentException("add Failed, index is illegal");
 
-        if (index == 0) {
-            addFirst(e);
-        } else {
-            // 1. 暂存头节点用于下面向前走
-            Node prev = dummyHead;
-            // 2.初始化新元素
-            Node newNode = new Node(e);
-            // 3.找到前一个节点 (虚拟头节点之后就不是index -1)
-            for (int i = 0; i < index; i++) {
-                prev = prev.next;
-            }
-            // 4.找到之后 先把后面的起来，再把前面的连起来！
-            newNode.next = prev.next;
-            prev.next = newNode;
-            size++;
+        // if (index == 0) {
+        //     addFirst(e);
+        // } else {
+        //     // 1. 暂存头节点用于下面向前走
+        //     Node prev = dummyHead;
+        //     // 2.初始化新元素
+        //     Node newNode = new Node(e);
+        //     // 3.找到前一个节点 (虚拟头节点之后就不是index -1)
+        //     for (int i = 0; i < index; i++) {
+        //         prev = prev.next;
+        //     }
+        //     // 4.找到之后 先把后面的起来，再把前面的连起来！
+        //     newNode.next = prev.next;
+        //     prev.next = newNode;
+        //     size++;
 
             // 优化1
             // Node newNode =  newNode(e, prev.next);
@@ -159,7 +159,15 @@ public class LinkedList<E> {
             // 优化2
             // prev.next = newNode(e, prev.next);
 
-        }
+            // =================虚拟头节点之后===============
+            Node prev = dummyHead;
+            for (int i = 0; i < index; i++) {
+                prev = prev.next;
+            }
+
+            prev.next = new Node(e, prev.next);
+            size++;
+
     }
 
     /**
@@ -218,4 +226,39 @@ public class LinkedList<E> {
         return delNode.e;
     }
 
+    /**
+     * 判断链表中是否存在指定元素
+     *
+     * @param e 指定元素
+     * @return boolean  是否包含
+     */
+    public boolean contains(E e) {
+        // 1.暂存现在的节点
+        Node cur = dummyHead.next;
+        // 2.不为空就向下走
+        while (cur != null) {
+            // 3.判断是否相等
+            if (cur.e.equals(e)) {
+                return true;
+            }
+            // 向下走
+            cur = cur.next;
+        }
+        // 全部遍历完没有直接出来
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Node cur = dummyHead.next;
+        while (cur != null) {
+            // 这里+e,不+e都是可以的 因为上面重写了toString()
+            // sb.append(cur.e).append("=>");
+            sb.append(cur).append("=>");
+            cur = cur.next;
+        }
+        sb.append("null");
+        return sb.toString();
+    }
 }
