@@ -27,12 +27,12 @@ public class LinkedList<E> {
     }
 
     // 2. 初始化
-    private Node head; // 头节点
+    private Node dummyHead; // 虚拟头节点
     private int size; // 长度
 
     // 3. 构造函数
     public LinkedList() {
-        head = null;
+        dummyHead = new Node();
         size = 0;
     }
 
@@ -53,7 +53,7 @@ public class LinkedList<E> {
     public E get(int index) {
         if (index < 0 || index >= size)
             throw new IllegalArgumentException("get Failed, index is illegal");
-        Node cur = head;
+        Node cur = dummyHead.next;
         for (int i = 0; i < index; i++) {
             cur = cur.next;
         }
@@ -87,7 +87,7 @@ public class LinkedList<E> {
     public void set(int index, E e) {
         if (index < 0 || index >= size)
             throw new IllegalArgumentException("get Failed, index is illegal");
-        Node cur = head;
+        Node cur = dummyHead.next;
         for (int i = 0; i < index; i++) {
             cur = cur.next;
         }
@@ -101,16 +101,19 @@ public class LinkedList<E> {
      */
     public void addFirst(E e) {
         // 基本
-        Node newNode = new Node(e);
-        newNode.next = head;
-        head = newNode;
+        // Node newNode = new Node(e);
+        // newNode.next = head;
+        // head = newNode;
         // 优化1
         // Node newNode = new Node(e, head); // 直接创建一个连接到链表头的节点
         // head = newNode;// 移动链表头
 
-        // 优化2
-        head = new Node(e, head); // 新建之后直接给了链表头
-        size++;
+        // // 优化2
+        // head = new Node(e, head); // 新建之后直接给了链表头
+        // size++;
+
+        // ==============导入虚拟头节点=================
+        add(0, e);
     }
 
     /**
@@ -129,18 +132,19 @@ public class LinkedList<E> {
      * @param e     新增节点的数据
      */
     public void add(int index, E e) {
-        if (index < 0 || index >= size)
+        // 这里可以在最后一个位置添加 所以>而不是>=
+        if (index < 0 || index > size)
             throw new IllegalArgumentException("add Failed, index is illegal");
 
         if (index == 0) {
             addFirst(e);
         } else {
             // 1. 暂存头节点用于下面向前走
-            Node prev = head;
+            Node prev = dummyHead;
             // 2.初始化新元素
             Node newNode = new Node(e);
-            // 3.找到前一个节点
-            for (int i = 0; i < index - 1; i++) {
+            // 3.找到前一个节点 (虚拟头节点之后就不是index -1)
+            for (int i = 0; i < index; i++) {
                 prev = prev.next;
             }
             // 4.找到之后 先把后面的起来，再把前面的连起来！
@@ -164,17 +168,21 @@ public class LinkedList<E> {
      * @return 返回链表头
      */
     public E removeFirst() {
-        // 如果为空 就直接null
-        if (head == null) return null;
+        // // 如果为空 就直接null
+        // if (head == null) return null;
+        //
+        // // 1.暂存链表头
+        // Node delNode = head;
+        // // 2.移动
+        // head = head.next;
+        // // 3.删除暂存的链表头
+        // delNode.next = null;
+        //
+        // return delNode.e;
 
-        // 1.暂存链表头
-        Node delNode = head;
-        // 2.移动
-        head = head.next;
-        // 3.删除暂存的链表头
-        delNode.next = null;
+        // ==============导入虚拟头节点=================
+        return remove(0);
 
-        return delNode.e;
     }
 
     /**
@@ -195,10 +203,9 @@ public class LinkedList<E> {
     public E remove(int index) {
         if (index < 0 || index >= size)
             throw new IllegalArgumentException("remove Failed, index is illegal");
-        if (index == 0) return removeFirst();
         // 移动用暂存
-        Node prev = head;
-        for (int i = 0; i < index - 1; i++) {
+        Node prev = dummyHead;
+        for (int i = 0; i < index; i++) {
             prev = prev.next;
         }
         // 1. 暂存
