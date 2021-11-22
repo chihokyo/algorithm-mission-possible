@@ -262,3 +262,354 @@ System.out.println("ASCII value of "+char1+" -->"+int1);
 所以统计一下下面字符出现的次数的话，就可以这样来写。
 
 ![image-20211120155604349](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211120155604349.png)
+
+根据上面写的，看题。
+
+## [LeetCode -1002. 查找共用字符](https://leetcode-cn.com/problems/find-common-characters/)
+
+
+
+```
+给你一个字符串数组 words ，请你找出所有在 words 的每个字符串中都出现的共用字符（ 包括重复字符），并以数组形式返回。你可以按 任意顺序 返回答案。
+
+示例 1：
+输入：words = ["bella","label","roller"]
+输出：["e","l","l"]
+示例 2：
+输入：words = ["cool","lock","cook"]
+输出：["c","o"]
+
+提示：
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] 由小写英文字母组成
+```
+
+### 思路
+
+![image-20211122011353879](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122011353879.png)
+
+数组长度是m，每一个字符长度是n，那么就是100*100=10000，所以这个时间复杂度是可以的
+
+那么接下来的思路就是
+
+- 首先统计一下第一个字符串分别出现的次数
+- 以第一个字符串各个字母出现的次数统计接下来的结果
+- 最后取得每个字符**最小出现次数**
+
+![image-20211122012303723](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122012303723.png)
+
+### 代码实现
+
+```java
+class Solution {
+    public List<String> commonChars(String[] words) {
+        // 求第一个字符串的出现次数 初始化数组
+        int[] minFreq = new int[26];
+        for (char c : words[0].toCharArray()) {
+            minFreq[c - 'a']++;
+        }
+        // 求接下来字符串出现的次数
+        // 从第2个开始，所以i是1，然后长度
+        for (int i = 1; i < words.length; i++) {
+            // 这里初始化一个统计次数数组，用来跟最小次数数组对比
+            int[] freq = new int[26];
+            // words[i]这里还是一个String需要转换成数组
+            for(char c : words[i].toCharArray()) {
+                // 统计次数
+                freq[c - 'a']++;
+            }
+            // 走到这里应该有2个数组了，1个记录最小的，1个记录当前字符串的，因为要取得最小的，所以要对比
+            for (int j = 0; j < 26; j++) {
+                minFreq[j] = Math.min(minFreq[j], freq[j]);
+            }
+        }
+        // 走到这里应该会获取一个长度为26的最小次数数组，但是题目要的是输出的结果集是String的list key是a,b,c,d,e，v是次数
+        
+        List<String> res = new ArrayList<>();
+        // 第一层循环26次，代表就是循环的key
+        for (int i = 0; i < 26; i++) {
+            // 第二层循环，其实是循环得到的值，要循环几次
+            // 比如a:2,b:5,c:0 说明a要循环2次，下面这个循环就是这个意义
+            // 要注意这里条件minFreq[i]，不是minFreq[j]，j是次数，i才是要输出的字符
+            for(int j = 0; j < minFreq[i]; j++) {
+                //  i + 'a' 1，2，3 → ASCII码
+                // (char)(i + 'a') ASCII码 → 字符 ※数字转字符需要括起来
+                // String.valueOf((char)(i + 'a'))　字符(char) → 字符串<String>
+                res.add(String.valueOf((char)(i + 'a')));
+            }
+        }
+        return res;
+    }
+}
+```
+
+看到答案里有一个Python一行流
+
+```python
+class Solution:
+    def commonChars(self, A: List[str]) -> List[str]:
+        return reduce(lambda x, y: x&y, map(Counter, A)).elements()
+```
+
+## [LeetCode -1370. 上升下降字符串](https://leetcode-cn.com/problems/increasing-decreasing-string/)
+
+这一题，读题是最难的。
+
+```
+给你一个字符串 s ，请你根据下面的算法重新构造字符串：
+
+从 s 中选出 最小 的字符，将它 接在 结果字符串的后面。
+从 s 剩余字符中选出 最小 的字符，且该字符比上一个添加的字符大，将它 接在 结果字符串后面。
+重复步骤 2 ，直到你没法从 s 中选择字符。
+从 s 中选出 最大 的字符，将它 接在 结果字符串的后面。
+从 s 剩余字符中选出 最大 的字符，且该字符比上一个添加的字符小，将它 接在 结果字符串后面。
+重复步骤 5 ，直到你没法从 s 中选择字符。
+重复步骤 1 到 6 ，直到 s 中所有字符都已经被选过。
+在任何一步中，如果最小或者最大字符不止一个 ，你可以选择其中任意一个，并将其添加到结果字符串。
+请你返回将 s 中字符重新排序后的 结果字符串 。
+示例 1：
+输入：s = "aaaabbbbcccc"
+输出："abccbaabccba"
+解释：第一轮的步骤 1，2，3 后，结果字符串为 result = "abc"
+第一轮的步骤 4，5，6 后，结果字符串为 result = "abccba"
+第一轮结束，现在 s = "aabbcc" ，我们再次回到步骤 1
+第二轮的步骤 1，2，3 后，结果字符串为 result = "abccbaabc"
+第二轮的步骤 4，5，6 后，结果字符串为 result = "abccbaabccba"
+示例 2：
+输入：s = "rat"
+输出："art"
+解释：单词 "rat" 在上述算法重排序以后变成 "art"
+示例 3：
+输入：s = "leetcode"
+输出："cdelotee"
+示例 4：
+输入：s = "ggggggg"
+输出："ggggggg"
+示例 5：
+输入：s = "spo"
+输出："ops"
+
+提示：
+1 <= s.length <= 500
+s 只包含小写英文字母。
+```
+
+### 思路
+
+最重要的就是要搞懂！！
+
+- 上升
+- 下降
+
+![image-20211122152531312](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122152531312.png)
+
+### 代码实现
+
+```java
+class Solution {
+    public String sortString(String s) {
+        // 新建一个计数数组 key是字母，value是次数
+        int[] counts = new int[26];
+        for (char c : s.toCharArray()) {
+            counts[c - 'a']++;
+        }
+        // 走到这里已经计算完毕
+
+        // 结果集
+        StringBuilder sb = new StringBuilder();
+        // sb 结果集如果一直比s 字符串要小
+        // 说明s里的字符串并没有完全转移到sb里
+        while (sb.length() < s.length()) {
+            // 上升
+            for (int i = 0; i < 26; i++) {
+                // 如果次数大于0
+                if(counts[i] > 0) {
+                    sb.append((char)(i + 'a'));
+                    counts[i]--;
+                }
+            }
+            // 下降
+            for (int i = 25; i >= 0; i--) {
+                if(counts[i] > 0) {
+                    sb.append((char)(i + 'a'));
+                    counts[i]--;
+                }
+            }
+        }
+        // 走到这个时候s里应该全部完成
+        // sb目前是一个StringBuilder类 StringBuilder → 字符串
+        return sb.toString();
+    }
+}
+```
+
+## 双指针
+
+正常情况下1根指针就可以
+
+![image-20211122155329251](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122155329251.png)
+
+像下面的双指针就各司其职，**快慢指针**
+
+![image-20211122155630450](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122155630450.png)
+
+还有一种场景，**左右对撞指针**。
+
+![image-20211122155741523](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122155741523.png)
+
+## [LeetCode - 283. 移动零](https://leetcode-cn.com/problems/move-zeroes/)
+
+```
+给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+示例:
+输入: [0,1,0,3,12]
+输出: [1,3,12,0,0]
+
+说明:
+必须在原数组上操作，不能拷贝额外的数组。
+尽量减少操作次数。
+```
+
+### 思路
+
+![image-20211122160202557](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122160202557.png)
+
+其实首先有一个遍历大法，开辟1份临时一样的空间。
+
+如果不为0，就拷贝到里面。如果为0就补充进来。最后把临时数组复制到原来的数组。完成。
+
+但是这样问题1 浪费了额外空间 2 遍历了2次，操作次数多。都不符合题意。
+
+> 所以就有了**快慢指针**。
+>
+> 快指针用来遍历每一个元素。慢指针用来记录非零元素当前该处于的位置。
+
+![2021-11-22 16-10-50.2021-11-22 16_13_57](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-22%2016-10-50.2021-11-22%2016_13_57.gif)
+
+### 代码实现
+
+**初版**
+
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        if (nums.length == 0) return;
+        int slow = 0;
+        for (int fast = 0; fast < nums.length; fast++) {
+            if (nums[fast] != 0) {
+                int temp = nums[fast];
+                nums[fast] = nums[slow];
+                nums[slow] = temp;
+
+                slow++;
+            }
+        }
+    }
+}
+```
+
+**优化1**
+
+因为如果这样的情况的话，数组内没有0,比如*[5,8,2,7]*的情况下，那么*fast*,*slow*始终是一致的，那么就会造成无用的判断。
+
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        if (nums.length == 0) return;
+        // 初始化慢指针 用来记录0之前的所有元素所在的位置
+        int slow = 0;
+        // 初始化快指针，并且进行遍历
+        for (int fast = 0; fast < nums.length; fast++) {
+            // 如果快指针所对应的元素不是0
+            if (nums[fast] != 0) {
+                // 如果快慢指针不同，才交换。
+                if (slow != fast) {
+                    int temp = nums[fast];
+                    nums[fast] = nums[slow];
+                    nums[slow] = temp;
+                }
+                slow++;
+            }
+        }
+    }
+}
+// 如果不用for循环，下面的fast其实还可以用while进行循环 
+
+class Solution {
+    public void moveZeroes(int[] nums) {
+        if (nums.length == 0) return;
+        // 初始化慢指针 用来记录0之前的所有元素所在的位置
+        int slow = 0;
+        // ① 初始化fast
+        int fast = 0;
+        // ② 如果长度比她小
+        while (fast < nums.length) {
+            if(nums[fast] != 0) {
+                if (slow != fast) {
+                    int temp = nums[fast];
+                    nums[fast] = nums[slow];
+                    nums[slow] = temp;
+                }
+                slow++;
+            }
+            // ③这里就是fast要++
+            fast++;
+        }
+        
+    }
+}
+```
+
+**优化2**
+
+上面的优化1其实也没多少优化，主要是这个优化2，采用的不一样的思路。那就是没必要进行交换，直接赋值最好。因为交换进行的对比操作，要比直接进行覆盖的赋值操作效率更高。
+
+![2021-11-22 16-30-45.2021-11-22 16_32_55](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-22%2016-30-45.2021-11-22%2016_32_55.gif)
+
+本质上就是，从第一个开始遍历，遇到0就向前走，不是0就复制过去。就这么简单。
+
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        if (nums.length == 0) return;
+        // 初始化慢指针 用来记录0之前的所有元素所在的位置
+        int slow = 0;
+        int fast = 0;
+        while (fast < nums.length) {
+            if(nums[fast] != 0) {
+                if (slow != fast) {
+                    nums[slow] = nums[fast];
+                }
+                slow++;
+            }
+            fast++;
+        }
+        for (int i = slow; i < nums.length; i++) {
+            nums[i] = 0;
+        }
+    }
+}
+
+// 不加上比较。性能还更好，说明赋值语句比比较语句执行快
+class Solution {
+    public void moveZeroes(int[] nums) {
+        if (nums.length == 0) return;
+        // 初始化慢指针 用来记录0之前的所有元素所在的位置
+        int slow = 0;
+        int fast = 0;
+        while (fast < nums.length) {
+            if(nums[fast] != 0) {
+                nums[slow] = nums[fast];
+                slow++;
+            }
+            fast++;
+        }
+        for (int i = slow; i < nums.length; i++) {
+            nums[i] = 0;
+        }
+    }
+}
+```
+
