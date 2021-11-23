@@ -613,3 +613,404 @@ class Solution {
 }
 ```
 
+## [LeetCode - 26. 删除有序数组中的重复项](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array/)
+
+```
+给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使每个元素 只出现一次 ，返回删除后数组的新长度。
+不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
+
+说明:
+为什么返回数值是整数，但输出的答案是数组呢?
+请注意，输入数组是以「引用」方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。
+你可以想象内部操作如下:
+
+// nums 是以“引用”方式传递的。也就是说，不对实参做任何拷贝
+int len = removeDuplicates(nums);
+
+// 在函数里修改输入数组对于调用者是可见的。
+// 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+ 
+示例 1：
+输入：nums = [1,1,2]
+输出：2, nums = [1,2]
+解释：函数应该返回新的长度 2 ，并且原数组 nums 的前两个元素被修改为 1, 2 。不需要考虑数组中超出新长度后面的元素。
+示例 2：
+输入：nums = [0,0,1,1,1,2,2,3,3,4]
+输出：5, nums = [0,1,2,3,4]
+解释：函数应该返回新的长度 5 ， 并且原数组 nums 的前五个元素被修改为 0, 1, 2, 3, 4 。不需要考虑数组中超出新长度后面的元素。
+ 
+提示：
+0 <= nums.length <= 3 * 104
+-104 <= nums[i] <= 104
+nums 已按升序排列
+```
+
+### 思路
+
+因为数据规模大于10的四次方了，所以不能用复杂度是2次方以上的。
+
+![image-20211123201025505](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211123201025505.png)
+
+首先定义快慢指针的位置。
+
+slow在0号位置。fast在1号位置。为什么呢？因为2个如果都在0号位置，自己和自己比干嘛！
+
+![2021-11-23 20-12-18.2021-11-23 20_13_40](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-23%2020-12-18.2021-11-23%2020_13_40.gif)
+
+fast向前走，遇到和自己一样的就一直向前，遇到和自己不一样的，就赋值过去。
+
+![2021-11-23 20-12-39.2021-11-23 20_14_16](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-23%2020-12-39.2021-11-23%2020_14_16.gif)
+
+这里遇到2不一样，就把2给赋值过去。
+
+最后结果slow+1就是长度了。
+
+![image-20211123202231630](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211123202231630.png)整体的思路就是这样
+
+- 定义2个快慢指针
+- 快指针向前走，慢指针标记已经完成的位置。
+- 最后返回slow+1（题目要求是长度）
+
+### 代码实现1
+
+```java
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if(nums == null || nums.length == 0) return 0;
+        int left = 0;
+        for(int right = 1; right < nums.length; right++){
+            // 如果不同，那么左指针向前走，右边数值赋值给左边
+            // 如果相同，那么右指针就继续向前走
+            if(nums[left] != nums[right]) {
+                nums[++left] = nums[right];
+            }
+        }
+        // 难点2 这里为什么返回left
+        // 可以看图，去重后的数组长度就是left最后的index然后+1;
+        return left+1;
+    }
+}
+```
+
+### 代码实现2(这个貌似稍快)
+
+```java
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if (nums.length == 0) return 0;
+        int slow = 0;
+        int fast = 1;
+        while (fast < nums.length) {
+            // 相等就向前走
+            if (nums[fast] != nums[slow]) {
+                // 注意要先移动，在交换
+                // 因为slow没＋之前，指向的是最后一个未重复的
+                // 直接这样赋值的话，就会抹掉最后了
+                slow++;
+                nums[slow] = nums[fast];
+            }
+            fast++;
+        }
+        // 此时slow指向的是未重复的，题解需要长度所以+1
+        return slow + 1;
+    }
+}
+```
+
+## [LeetCode - 80. 删除有序数组中的重复项 II](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-array-ii/)
+
+```
+给你一个有序数组 nums ，请你 原地 删除重复出现的元素，使每个元素 最多出现两次 ，返回删除后数组的新长度。
+不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
+
+说明：
+为什么返回数值是整数，但输出的答案是数组呢？
+请注意，输入数组是以「引用」方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。
+你可以想象内部操作如下:
+
+// nums 是以“引用”方式传递的。也就是说，不对实参做任何拷贝
+int len = removeDuplicates(nums);
+
+// 在函数里修改输入数组对于调用者是可见的。
+// 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+ 
+示例 1：
+输入：nums = [1,1,1,2,2,3]
+输出：5, nums = [1,1,2,2,3]
+解释：函数应返回新长度 length = 5, 并且原数组的前五个元素被修改为 1, 1, 2, 2, 3 。 不需要考虑数组中超出新长度后面的元素。
+示例 2：
+输入：nums = [0,0,1,1,1,1,2,3,3]
+输出：7, nums = [0,0,1,1,2,3,3]
+解释：函数应返回新长度 length = 7, 并且原数组的前五个元素被修改为 0, 0, 1, 1, 2, 3, 3 。 不需要考虑数组中超出新长度后面的元素。
+ 
+提示：
+1 <= nums.length <= 3 * 104
+-104 <= nums[i] <= 104
+nums 已按升序排列
+```
+
+为什么从第3个，也就是index为2的时候开始？
+
+index是2。因为根据题意，重复不超过2个的话，index为2的话，如果和index为0重复的话，那么这个值就是重复的，如果不是重复的，那么肯定也就是不是重复的。这是一个**有序数组**。
+
+![2021-11-23 20-41-46.2021-11-23 20_42_47](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-23%2020-41-46.2021-11-23%2020_42_47.gif)
+
+- 快慢指针初始化
+- 判断是否重复
+- 最后返回slow就可以。（至于为什么不需要+1，这是根据你初始化定义的slow位置决定的）
+
+上一题移动零的时候+1，是因为slow当时在的位置是**已经处理的最后一个区域的位置**，那肯定要先++。如果slow初始化的定义是**最后一个位置的下一个位置**。那么就不用++了。
+
+### 代码实现
+
+```java
+// while 写法
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if (nums.length <= 2) return nums.length;
+        // 初始化slow这个位置是因为前2个要么全部一样，要么全部不一样
+        int slow = 2;
+        int fast = 2;
+        while (fast < nums.length) {
+            if(nums[fast] != nums[slow - 2]) {
+                nums[slow] = nums[fast];
+                slow++;
+            }
+            fast++;
+        }
+        return slow;
+    }
+}
+// for 写法
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if (nums.length <= 2) return nums.length;
+        int slow = 2;
+        for (int fast = 2; fast < nums.length; fast++) {
+            if (nums[fast] != nums[slow - 2]) {
+                nums[slow] = nums[fast];
+                slow++;
+            }
+        }
+        return slow;
+    }
+}
+```
+
+**如果这个时候slow的位置是1呢**
+
+```java
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if (nums.length <= 2) return nums.length;
+        int slow = 1; // 已经处理位置的最后1个位置
+        int fast = 2;
+        while (fast < nums.length) {
+            if(nums[fast] != nums[slow - 1]) {
+								slow++;
+                nums[slow] = nums[fast];
+            }
+            fast++;
+        }
+        return slow + 1;
+    }
+}
+```
+
+评论区写法
+
+能理解出来这个写法也是需要一点点实力的。
+
+```java
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        int i = 0;
+        for (int n : nums)
+            if (i < 2 || n > nums[i-2])
+                nums[i++] = n;
+        return i;
+    }
+}
+```
+
+顺便学到了
+
+```java
+nums[slow] = nums[fast];
+slow++;
+// 可以直接合并成
+nums[slow++] = nums[fast];
+```
+
+## [LeetCode - 27. 移除元素](https://leetcode-cn.com/problems/remove-element/)
+
+````
+给你一个数组 nums 和一个值 val，你需要 原地 移除所有数值等于 val 的元素，并返回移除后数组的新长度。
+不要使用额外的数组空间，你必须仅使用 O(1) 额外空间并 原地 修改输入数组。
+元素的顺序可以改变。你不需要考虑数组中超出新长度后面的元素。
+
+说明:
+为什么返回数值是整数，但输出的答案是数组呢?
+请注意，输入数组是以「引用」方式传递的，这意味着在函数里修改输入数组对于调用者是可见的。
+你可以想象内部操作如下:
+// nums 是以“引用”方式传递的。也就是说，不对实参作任何拷贝
+int len = removeElement(nums, val);
+// 在函数里修改输入数组对于调用者是可见的。
+// 根据你的函数返回的长度, 它会打印出数组中 该长度范围内 的所有元素。
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+ 
+示例 1：
+输入：nums = [3,2,2,3], val = 3
+输出：2, nums = [2,2]
+解释：函数应该返回新的长度 2, 并且 nums 中的前两个元素均为 2。你不需要考虑数组中超出新长度后面的元素。例如，函数返回的新长度为 2 ，而 nums = [2,2,3,3] 或 nums = [2,2,0,0]，也会被视作正确答案。
+示例 2：
+输入：nums = [0,1,2,2,3,0,4,2], val = 2
+输出：5, nums = [0,1,4,0,3]
+解释：函数应该返回新的长度 5, 并且 nums 中的前五个元素为 0, 1, 3, 0, 4。注意这五个元素可为任意顺序。你不需要考虑数组中超出新长度后面的元素。
+ 
+提示：
+0 <= nums.length <= 100
+0 <= nums[i] <= 50
+0 <= val <= 100
+````
+
+这一题和上面的移除零的做法几乎是一样的。
+
+#### 快慢指针
+
+![image-20211123224747519](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211123224747519.png)
+
+```java
+// 因为这一题也可以看出来已处理区域和slow是相等的
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        if(nums.length == 0) return 0;
+        int slow = 0;
+        int fast = 0;
+        while (fast < nums.length) {
+            if (nums[fast] != val) {
+                nums[slow] = nums[fast];
+                slow++;
+            }
+            fast++;
+        }
+        return slow;
+    }
+}
+```
+
+#### 对撞指针
+
+如果刚好删除的元素特别少，如何提升性能？
+
+![image-20211123225539557](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211123225539557.png)
+
+快慢指针就有问题了，因为目标如果在index第一个or最后一个的时候，效率会特别差。
+
+快慢指针的2个指针都是从一个方向开始的，那么就需要到对撞指针了。
+
+![2021-11-23 22-57-32.2021-11-23 22_57_58](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-23%2022-57-32.2021-11-23%2022_57_58.gif)
+
+-  初始化前后2个指针
+- right如果小于left就出来
+- 如果左边的是目标，那么就把右边的复制过去，然后right向前走
+- 否则（不是目标）left就向前走
+- 最后返回的是right+1 ，left 也可以。如下图（这个位置才是长度）
+
+↓ 可以看出来此时，right已经大于left，而这个时候的位置是right
+
+![image-20211123230200333](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211123230200333.png)
+
+```java
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        if(nums.length == 0) return 0;
+        int left = 0;
+        int right = nums.length - 1;
+        while (left <= right) {
+            if (nums[left] == val) {
+                nums[left] = nums[right];
+                right--;
+            } else {
+                left++;
+            }
+        }
+        return left; // right + 1 也OK
+    }
+}
+```
+
+这种解法在目标值在靠前后位置，或者目标值很少（只有1个，2个）的时候会效率更高。
+
+## [LeetCode - 344. 反转字符串](https://leetcode-cn.com/problems/reverse-string/)
+
+```
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 s 的形式给出。
+不要给另外的数组分配额外的空间，你必须原地修改输入数组、使用 O(1) 的额外空间解决这一问题。
+
+示例 1：
+输入：s = ["h","e","l","l","o"]
+输出：["o","l","l","e","h"]
+示例 2：
+输入：s = ["H","a","n","n","a","h"]
+输出：["h","a","n","n","a","H"]
+ 
+提示：
+1 <= s.length <= 105
+s[i] 都是 ASCII 码表中的可打印字符
+```
+
+因为上面说了对撞指针，所以有这一题也可以用**对撞指针**，很经典
+
+![2021-11-23 23-11-01.2021-11-23 23_11_40](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-23%2023-11-01.2021-11-23%2023_11_40.gif)
+
+```java
+// 使用while写法
+class Solution {
+    public void reverseString(char[] s) {
+        int left = 0;
+        int right = s.length - 1;
+        // 等于的情况下，走到一起，就是轴心，无需处理
+        while (left < right) {
+            // 交换
+            char temp = s[left];
+            s[left] = s[right];
+            s[right] = temp;
+            // left，right向前走
+            left++;
+            right--;
+        }
+    }
+}
+// 使用for写法
+class Solution {
+    public void reverseString(char[] s) {
+        int n = s.length;
+        for (int i = 0; i < n / 2; i++) {
+            int j = n - 1 - i;
+            char temp = s[i];
+            s[i] = s[j];
+            s[j] = temp;
+        }
+    }
+}
+```
+
+## 125
+
+## 11
+
+## 1480
+
+## 238
+
+
+
