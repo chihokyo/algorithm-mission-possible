@@ -446,6 +446,8 @@ class Solution {
 
 ## 双指针
 
+## 【普通快慢指针】
+
 正常情况下1根指针就可以
 
 ![image-20211122155329251](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211122155329251.png)
@@ -848,6 +850,8 @@ slow++;
 nums[slow++] = nums[fast];
 ```
 
+## 【对撞指针】
+
 ## [LeetCode - 27. 移除元素](https://leetcode-cn.com/problems/remove-element/)
 
 ````
@@ -913,7 +917,9 @@ class Solution {
 
 ![image-20211123225539557](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211123225539557.png)
 
-快慢指针就有问题了，因为目标如果在index第一个or最后一个的时候，效率会特别差。
+快慢指针就有问题了，因为目标如果在index第一个or最后一个的时候，效率会特别差。尤其是这种情况
+
+`array=[1,4,2,2,3,4] val = 1` ，这个时候除了index为0，后面的全部要赋值一次。
 
 快慢指针的2个指针都是从一个方向开始的，那么就需要到对撞指针了。
 
@@ -921,7 +927,7 @@ class Solution {
 
 -  初始化前后2个指针
 - right如果小于left就出来
-- 如果左边的是目标，那么就把右边的复制过去，然后right向前走
+- 如果左边的是目标，那么就把右边的复制过去，然后right向前走（**用于释放最后一个元素的区域，本质就是删除**）
 - 否则（不是目标）left就向前走
 - 最后返回的是right+1 ，left 也可以。如下图（这个位置才是长度）
 
@@ -1004,13 +1010,207 @@ class Solution {
 }
 ```
 
-## 125
+## [LeetCode - 125. 验证回文串](https://leetcode-cn.com/problems/valid-palindrome/) 
 
-## 11
+```
+给定一个字符串，验证它是否是回文串，只考虑字母和数字字符，可以忽略字母的大小写。
+说明：本题中，我们将空字符串定义为有效的回文串。
 
-## 1480
+示例 1:
+输入: "A man, a plan, a canal: Panama"
+输出: true
+解释："amanaplanacanalpanama" 是回文串
+示例 2:
+输入: "race a car"
+输出: false
+解释："raceacar" 不是回文串
+ 
+提示：
+1 <= s.length <= 2 * 105
+字符串 s 由 ASCII 字符组成
+```
 
-## 238
+### 解题思路
+
+- 因为只考虑①**字母**②**数组字符**，③**忽略大小写**。所以不符合条件的字符，要进行过滤。
+
+### 代码实现
+
+```java
+class Solution {
+    public boolean isPalindrome(String s) {
+        int left = 0;
+        int right = s.length() - 1;
+        while (left < right) {
+           	// 忽略左边无效字符 left < right 一定要+
+            while (left < right && !Character.isLetterOrDigit(s.charAt(left))) left++;
+          	// 忽略右边无效字符
+            while (left < right && !Character.isLetterOrDigit(s.charAt(right))) right--;
+          	// 走到这里很有可能left是大于right的，那就要退出了。所以新的条件↓
+          	// 左边小于右边
+            if (left < right) {
+                if (Character.toLowerCase(s.charAt(left)) != Character.toLowerCase(s.charAt(right))) {
+                    return false;
+                }
+                left++;
+                right--;
+            }
+        }
+        return true;
+    }
+}
+```
+
+## [LeetCode - 11. 盛最多水的容器](https://leetcode-cn.com/problems/container-with-most-water/)
+
+```
+给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0) 。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+说明：你不能倾斜容器。
+
+示例 1：
+输入：[1,8,6,2,5,4,8,3,7]
+输出：49 
+解释：图中垂直线代表输入数组 [1,8,6,2,5,4,8,3,7]。在此情况下，容器能够容纳水（表示为蓝色部分）的最大值为 49。
+示例 2：
+输入：height = [1,1]
+输出：1
+示例 3：
+输入：height = [4,3,2,1,4]
+输出：16
+示例 4：
+输入：height = [1,2,1]
+输出：2
+ 
+提示：
+n == height.length
+2 <= n <= 105
+0 <= height[i] <= 104
+```
+
+![img](https://aliyun-lc-upload.oss-cn-hangzhou.aliyuncs.com/aliyun-lc-upload/uploads/2018/07/25/question_11.jpg)
+
+其实就是求红色线那种体积最大的值。
+
+### 思路
+
+#### 首先有暴力解法
+
+固定第一根柱子，然后看体积。固定第二根柱子，然后看体积。就这样一直下去。。。
+
+```java
+public int maxArea(int[] height) {
+  // 柱子个数
+	int n = height.length;
+  int res = 0;
+  // 固定1根柱子i
+  for (int i = 0; i < n; i++) {
+    // 然后接下来继续看下一根柱子
+    for (int j = i + 1; j < n; j++) {
+      // 取最短的那个柱子，宽度就是 j - i
+      int area = Math.min(height[i], height[j]) * (j - i);
+      res = Math.max(res, area);
+    }
+  }
+  return res;
+}
+```
+
+但是上面的计算，首先复杂度是n的平方，不符合题意。肯定会超时。
+
+#### 对撞指针
+
+暴力解法里面有重复计算的
+
+在宽度（横向坐标轴）一定的情况下，面积取决于最短的那跟柱子！
+
+![2021-11-24 17-32-45.2021-11-24 17_34_07](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-24%2017-32-45.2021-11-24%2017_34_07.gif)
+
+比如上面1-2，1-3...这些是没意义的，直接计算1-9就好。
+
+那么接下来还有比1-9更大的面积吗？有可能，就看柱子的高度了。如果1号的柱子和9号的柱子，1号更低，所以1号向前走。所以移动短的那边，如↓
+
+![image-20211124174238796](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211124174238796.png)
+
+所以基本上思路就有了。
+
+直接上代码
+
+```java
+// 暴力解法 超时
+public int maxArea(int[] height) {
+  // 柱子个数
+  int n = height.length;
+  int res = 0;
+  // 固定1根柱子i
+  for (int i = 0; i < n; i++) {
+    // 然后接下来继续看下一根柱子
+    for (int j = i + 1; j < n; j++) {
+      int tempArea = Math.min(height[i], height[j]) * (j - i);
+      res = Math.max(tempArea, res);
+    }
+  }
+  return res;
+}
+
+// 对撞指针
+public int maxArea1(int[] height) {
+  int res = 0;
+  int left = 0;
+  int right = height.length - 1;
+  while(left < right) {
+    // 取得面积
+    int area = Math.min(height[left], height[right]) * (right - left);
+    res = Math.max(res,area);
+    // 在面积固定的时候，宽度固定的时候
+    if (height[left] <= height[right]) {
+      left++;
+    } else {
+      right--;
+    }
+  }
+  return res;
+}
+```
+
+## [LeetCode - 1480. 一维数组的动态和](https://leetcode-cn.com/problems/running-sum-of-1d-array/)
+
+```
+给你一个数组 nums 。数组「动态和」的计算公式为：runningSum[i] = sum(nums[0]…nums[i]) 。
+请返回 nums 的动态和。
+
+示例 1：
+输入：nums = [1,2,3,4]
+输出：[1,3,6,10]
+解释：动态和计算过程为 [1, 1+2, 1+2+3, 1+2+3+4] 。
+示例 2：
+输入：nums = [1,1,1,1,1]
+输出：[1,2,3,4,5]
+解释：动态和计算过程为 [1, 1+1, 1+1+1, 1+1+1+1, 1+1+1+1+1] 。
+示例 3：
+输入：nums = [3,1,2,10,1]
+输出：[3,4,6,16,17]
+
+提示：
+1 <= nums.length <= 1000
+-10^6 <= nums[i] <= 10^6
+```
+
+### 思路
+
+## [LeetCode - 238. 除自身以外数组的乘积](https://leetcode-cn.com/problems/product-of-array-except-self/)
+
+```
+给你一个长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。
+
+示例:
+输入: [1,2,3,4]
+输出: [24,12,8,6]
+ 
+提示：题目数据保证数组之中任意元素的全部前缀元素和后缀（甚至是整个数组）的乘积都在 32 位整数范围内。
+说明: 请不要使用除法，且在 O(n) 时间复杂度内完成此题。
+进阶：
+你可以在常数空间复杂度内完成这个题目吗？（ 出于对空间复杂度分析的目的，输出数组不被视为额外空间。）
+```
 
 
 
