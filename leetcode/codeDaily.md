@@ -1172,6 +1172,8 @@ public int maxArea1(int[] height) {
 }
 ```
 
+## 前缀和&前缀积
+
 ## [LeetCode - 1480. 一维数组的动态和](https://leetcode-cn.com/problems/running-sum-of-1d-array/)
 
 ```
@@ -1195,7 +1197,84 @@ public int maxArea1(int[] height) {
 -10^6 <= nums[i] <= 10^6
 ```
 
-### 思路
+### ![image-20211124223255447](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211124223255447.png)
+
+首先就可以想到暴力解法。
+
+### 暴力解法
+
+![2021-11-24 22-34-09.2021-11-24 22_34_43](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-24%2022-34-09.2021-11-24%2022_34_43.gif)
+
+首先就是固定一个，然后分别计算。因为暴力解法虽然复杂度是n方，但是因为题意的数据规模是1000，所以OK的
+
+- 指针i固定1个index，指针j计算从i到j所有数字的和。
+
+```java
+class Solution {
+    public int[] runningSum(int[] nums) {
+        int n = nums.length;
+        int[] prefixSum = new int[n];
+        // 一轮循环
+        for (int i = 0; i < n; i++) {
+            // 固定i,然后从j开始循环
+            int sum = 0;
+            for (int j = 0; j <= i; j++) {
+                sum += nums[j];
+            }
+            // 得到一个前缀和的数组
+            prefixSum[i] = sum;
+        }
+        return prefixSum;
+    }
+}
+```
+
+### 动态规划
+
+因为上面的暴力写法会有很多的重复计算，
+
+![2021-11-24 22-42-22.2021-11-24 22_42_36](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-24%2022-42-22.2021-11-24%2022_42_36.gif)
+
+所以就有了下面这个解法。动态规划
+
+> 通过中间值推导消除重复计算。动态规划 **prefix[i]  = prefix[i - 1] + num[i] **
+
+![2021-11-24 22-43-03.2021-11-24 22_43_26](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-11-24%2022-43-03.2021-11-24%2022_43_26.gif)
+
+代码实现
+
+```java
+// 从1开始
+class Solution {
+    public int[] runningSum(int[] nums) {
+        int n = nums.length;
+        int[] prefixSum = new int[n];
+        prefixSum[0] = nums[0];
+        // 为什么要从1开始
+        // 其实是因为prefixSum[i - 1] + nums[i]的时候i为0的情况
+        for (int i = 1; i < n; i++) {
+            prefixSum[i] = prefixSum[i - 1] + nums[i];
+        }
+        return prefixSum;
+    }
+}
+// 从0开始 注意看改变了3个地方
+class Solution {
+    public int[] runningSum(int[] nums) {
+        int n = nums.length;
+        int[] prefixSum = new int[n];
+        prefixSum[0] = nums[0];
+        // 改变①int i = 0; ②i < n - 1
+        // ③prefixSum[i + 1] = prefixSum[i] + nums[i + 1];
+        for (int i = 0; i < n - 1; i++) {
+            prefixSum[i + 1] = prefixSum[i] + nums[i + 1];
+        }
+        return prefixSum;
+    }
+}
+```
+
+感觉对动态规划突然理解了好多。
 
 ## [LeetCode - 238. 除自身以外数组的乘积](https://leetcode-cn.com/problems/product-of-array-except-self/)
 
@@ -1212,5 +1291,100 @@ public int maxArea1(int[] height) {
 你可以在常数空间复杂度内完成这个题目吗？（ 出于对空间复杂度分析的目的，输出数组不被视为额外空间。）
 ```
 
+首先这一题有一个好玩的地方，就是不让你使用除法。这个道理很简单，因为把整体全部都乘掉之后，除以自己就可以得到结果了。
 
+那样就没任何意思了。
+
+### 暴力解法
+
+首先暴力解法，就是先计算**自身以外**乘以<u>左边</u>的。在计算乘以<u>右边</u>的。然后<u>左右再次相乘</u>，不就OK啦？
+
+```java
+// 暴力解法，超时
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] res = new int[n];
+        for (int i = 0; i < n; i++) {
+            // 计算左边
+            int leftP = 1;
+            for (int j = 0; j < i; j++) {
+                leftP *= nums[j];
+            }
+            // 计算右边
+            int rightP = 1;
+            for (int j = i + 1; j < n; j++) {
+                rightP *= nums[j];
+            }
+            // 左右相乘
+            res[i] = leftP * rightP;
+        }
+        return res;
+    }
+}
+```
+
+于是就需要找规律了。那么可以看出来
+
+![image-20211124232132291](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211124232132291.png)
+
+左乘积用的就是 `leftP[2] = left[2 - 1] * num[2 - 1] ` 
+
+右乘积用的就是 `rightP[2] = right[2 + 1] * num[2 + 1] ` 
+
+### 解法1 时间复杂度O（n）
+
+时间复杂度O(n)，空间复杂度O(n)
+
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] leftProducts = new int[n];
+        // 最左边肯定是1
+        leftProducts[0] = 1;
+        for (int i = 1; i < n; i++) {
+            leftProducts[i] = leftProducts[i - 1] * nums[i - 1]; 
+        }
+        int[] rightProducts = new int[n];
+        // 最右边肯定也是1
+        rightProducts[n - 1] = 1;
+        // 从倒数第2个开始算起
+        for (int i = n - 2; i >= 0; i--) {
+            rightProducts[i] = rightProducts[i + 1] * nums[i + 1]; 
+        }
+        int[] res = new int[n];
+        for (int i = 0; i < n; i++) {
+            res[i] = leftProducts[i] * rightProducts[i];
+        }
+        return res;
+    }
+}
+```
+
+### 解法2 时间复杂度O（n）
+
+时间复杂度O(n)，空间复杂度O(1) 有点难理解
+
+```java
+public int[] productExceptSelf2(int[] nums) {
+        int n = nums.length;
+        // 先将每个元素的左边乘积放在res里
+        int[] res = new int[n];
+        res[0] = 1;
+        for (int i = 1; i < n; i++) {
+            res[i] = res[i - 1] * nums[i - 1];
+        }
+        // 每个元素的右边所有元素的乘积存储在一个变量中
+        int rightP = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            // 对于索引 i，左边的乘积为 output[i]，右边的乘积为 rightP
+            res[i] = res[i] * rightP;
+            // 更新右边乘积
+            rightP = rightP * nums[i];
+        }
+
+        return res;
+    }
+```
 
