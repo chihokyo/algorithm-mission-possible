@@ -1,4 +1,4 @@
-package com.chin.first._238;
+package com.chin._01._238;
 
 public class _238_product_of_array_except_self {
     // 暴力解法 超时

@@ -1,4 +1,4 @@
-package com.chin.first._1370;
+package com.chin._01._1370;
 
 public class _1370_increasing_decreasing_string {
     public String sortString(String s) {

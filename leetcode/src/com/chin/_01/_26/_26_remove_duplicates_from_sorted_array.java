@@ -1,4 +1,4 @@
-package com.chin.first._26;
+package com.chin._01._26;
 
 public class _26_remove_duplicates_from_sorted_array {
     // while写法

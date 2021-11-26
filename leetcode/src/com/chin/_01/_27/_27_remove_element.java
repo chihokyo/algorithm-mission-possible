@@ -1,4 +1,4 @@
-package com.chin.first._27;
+package com.chin._01._27;
 
 public class _27_remove_element {
     // 对撞指针

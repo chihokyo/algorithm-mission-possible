@@ -1,4 +1,4 @@
-package com.chin.first._80;
+package com.chin._01._80;
 
 public class _80_remove_duplicates_from_sorted_arrayii {
     // while写法

@@ -1,4 +1,4 @@
-package com.chin.first._125;
+package com.chin._01._125;
 
 public class _125_valid_palindrome {
     public boolean isPalindrome(String s) {

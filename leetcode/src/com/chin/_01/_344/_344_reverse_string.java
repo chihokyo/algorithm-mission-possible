@@ -1,4 +1,4 @@
-package com.chin.first._344;
+package com.chin._01._344;
 
 public class _344_reverse_string {
     // while

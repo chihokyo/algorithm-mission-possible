@@ -1,4 +1,4 @@
-package com.chin.first._283;
+package com.chin._01._283;
 
 public class _283_move_zeroes {
     // 方法1 交换方法

@@ -1,4 +1,4 @@
-package com.chin.first._1480;
+package com.chin._01._1480;
 
 public class _1480_running_sum_of_1d_array {
     // 暴力解法 时间复杂度O(n方)
