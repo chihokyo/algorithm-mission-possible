@@ -1,3 +1,5 @@
 *.DS_Store
 /code/python/demo.py
 leetcode_test.py
+*.idea
+*.class

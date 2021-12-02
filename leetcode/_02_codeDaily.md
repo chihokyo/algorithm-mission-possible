@@ -277,7 +277,7 @@ k = 6
 遍历的顺序：0 -> 2 -> 5 -> 3 -> 0，一遍就可以遍历完
 ```
 
-所以直接上代码就是，虽然我这样写了**。但其实我并不是很懂。**
+所以直接上代码就是，虽然我这样写了。**但其实我并不是很懂。**
 
 ```java
 class Solution {
@@ -354,5 +354,331 @@ class Solution {
 k = k % n; 这个问题，其实不写这个也是可以的，但是当k超过数组长度的时候，你会发现本质上和结果上都是一样的，但是会多计算几次。所以先计算几次取模，这样可以提高效率。
 ```
 
+## [665. 非递减数列](https://leetcode-cn.com/problems/non-decreasing-array/)
 
+```
+给你一个长度为 n 的整数数组，请你判断在 最多 改变 1 个元素的情况下，该数组能否变成一个非递减数列。我们是这样定义一个非递减数列的： 对于数组中任意的 i (0 <= i <= n-2)，总满足 nums[i] <= nums[i + 1]。
+
+示例 1:
+输入: nums = [4,2,3]
+输出: true
+解释: 你可以通过把第一个4变成1来使得它成为一个非递减数列。
+示例 2:
+输入: nums = [4,2,1]
+输出: false
+解释: 你不能在只改变一个元素的情况下将其变为非递减数列。
+ 
+提示：
+1 <= n <= 10 ^ 4
+- 10 ^ 5 <= nums[i] <= 10 ^ 5
+```
+
+题意的目的的话。就是能否在改动1个元素的情况下，满足`ums[i] <= nums[i + 1]。`
+
+比如本来是
+
+```
+■[4,2,3]
+  [1,2,3] OK
+  [2,2,3] OK 
+  这里都是OK的
+■[4,2,1]
+这样无论如何都是变不成一个非递减数列的
+```
+
+### 思路
+
+重点就是只能改1次。既然既可以，那么选择哪一个呢？
+
+`nums[i - 1] = nums[i]`
+
+`nums[i] = nums[i - 1]`
+
+其实重点是看前2个元素的值！！！
+
+![image-20211128001401011](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211128001401011.png)
+
+根据上面的感觉的话，因为5是大于4的，所以最后需要把5赋值给2，保证[455,4]前面是非递减的，这样如果遇到了递减那么就要判断下是第几次，第2次的话就取消掉。
+
+关于代码的2个难点
+
+- 1 边界判断 → 这个很好理解
+- 2 判断如何赋值
+
+![image-20211128003716635](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211128003716635.png)
+
+因为根据的前提条件`i-1`肯定是要大于`i-2`的
+
+如果是下面这种情况的话！！就是要反过来了。
+
+![image-20211128004006284](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211128004006284.png)
+
+### 代码实现
+
+主要是搞懂边界，我在写这些代码的时候搞懂了边界。以后估计会忘记吧。
+
+主要是看指针i在哪里，要对比前面的几位还是后面的几位
+
+```java
+// 边界从for(int i =0)
+class Solution {
+    public boolean checkPossibility(int[] nums) {
+        int count = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] < nums[i - 1]) {
+                count++;
+                if (count > 1) return false;
+                // 453 → 455 那么就需要 
+              	// i-2>=0 是因为不能越界 
+                if (i - 2 >= 0 && nums[i - 2] > nums[i]) {
+                    // 因为根据题意，此时 [i - 1] 肯定要大于[i - 2]
+                    nums[i] = nums[i - 1];
+                } else {
+                    // 426 → 466 
+                    nums[i - 1] = nums[i];
+                }
+            }
+        }
+        return true;
+    }
+}
+// 边界从for(int i=0)
+class Solution {
+    public boolean checkPossibility(int[] nums) {
+        int count = 0;
+        for (int i = 0; i + 1 < nums.length; i++) {
+            if (nums[i + 1] < nums[i]) {
+                count++;
+                if (count > 1) return false;
+                // 453 → 455 那么就需要 
+                if (i - 1 >= 0 && nums[i - 1] > nums[i + 1]) {
+                    // 因为根据题意，此时 [i - 1] 肯定要大于[i - 2]
+                    nums[i + 1] = nums[i];
+                } else {
+                    // 426 → 466 
+                    nums[i] = nums[i + 1];
+                }
+            }
+        }
+        return true;
+    }
+}
+```
+
+这里看了老师的一段题解
+
+但其实这一题不判断第二个else也是可以的
+
+```java
+class Solution {
+    public boolean checkPossibility(int[] nums) {
+        int n = nums.length;
+        int count = 0;
+        for (int i = 0; i + 1 < nums.length; i++) {
+            if (nums[i + 1] < nums[i]) {
+                count++;
+                if (count > 1) return false;
+                //453 → 455
+                if (i - 1 >= 0 && nums[i + 1] < nums[i - 1]) {
+                    nums[i + 1] = nums[i];
+                }
+            }
+        }
+        return true;
+    }
+}
+```
+
+如果想要看懂为什么省略的话，试着认真读一下。
+
+其实原理很简单 
+
+- ` nums[i - 1] = nums[i]`  这样不会影响i之后的顺序，因为是把i赋值给前面的一个数值，后面没影响。
+-  `nums[i] = nums[i - 1]` 这样就会影响i以及之后的顺序，这样可能造成重复。
+
+```
+解释这里为什么是这样修改：
+■如果 nums[i] >= nums[i - 2] 时候，修改 nums[i] = nums[i - 1] 的话，会导致：修改 nums[i] 后，会影响 i 及其后面的顺序
+■如果只是修改 nums[i - 1] = nums[i] 的话，则不会影响 i 及其后面的顺序
+■如果 nums[i] < nums[i - 2] 时候，没办法，只能修改 nums[i] = nums[i - 1]，虽然也会影响 i 及其后面的顺序，但这是不可免的
+
+因为我们的算法是需要保证语义：[0...i] 是非递减的
+
+而且我们还要求尽可能少的修改次数，这样我们就需要尽可能少的影响 i 及其后面的顺序
+所以我们只能这样来选择策略了：
+■如果 nums[i] < nums[i - 2] 时候修改 nums[i] = nums[i - 1]；
+■如果 nums[i] >= nums[i - 2] 时候修改 nums[i - 1] = nums[i]
+————————————————————————
+▼ 比如：[-1,4,2,3]
+■如果 i 指向的是 2，这个时候，nums[i] > nums[i - 2] 的，
+■如果修改 nums[i] = nums[i - 1]，那么数组变为 [-1, 4, 4, 3],这样导致 i 及其后面的顺序变了，需要再次修改，才可以使得数组非递增
+■如果这个时候修改 nums[i - 1] = nums[i] 的话，那么数组变为 [-1, 2, 2, 3]，这样数组只需一次修改，就变为非递减数列了
+这里其实还需要注意一个边界条件，那就是 i < 2 的时候，这个时候也是修改 nums[i - 1] = nums[i] ，目的也是为了尽可能少的影响 i 及其后面的顺序
+```
+
+
+
+## [228. 汇总区间](https://leetcode-cn.com/problems/summary-ranges/)
+
+```
+给定一个无重复元素的有序整数数组 nums 。
+返回 恰好覆盖数组中所有数字 的 最小有序 区间范围列表。也就是说，nums 的每个元素都恰好被某个区间范围所覆盖，并且不存在属于某个范围但不属于 nums 的数字 x 。
+列表中的每个区间范围 [a,b] 应该按如下格式输出：
+
+"a->b" ，如果 a != b
+"a" ，如果 a == b
+
+示例 1：
+输入：nums = [0,1,2,4,5,7]
+输出：["0->2","4->5","7"]
+解释：区间范围是：
+[0,2] --> "0->2"
+[4,5] --> "4->5"
+[7,7] --> "7"
+示例 2：
+输入：nums = [0,2,3,4,6,8,9]
+输出：["0","2->4","6","8->9"]
+解释：区间范围是：
+[0,0] --> "0"
+[2,4] --> "2->4"
+[6,6] --> "6"
+[8,9] --> "8->9"
+示例 3：
+输入：nums = []
+输出：[]
+示例 4：
+输入：nums = [-1]
+输出：["-1"]
+示例 5：
+输入：nums = [0]
+输出：["0"]
+ 
+提示：
+0 <= nums.length <= 20
+-231 <= nums[i] <= 231 - 1
+nums 中的所有值都 互不相同
+nums 按升序排列
+```
+
+### 思路
+
+![image-20211202224028481](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211202224028481.png)
+
+从i开始遍历，相差为1说明就是练习，>=1说明就不是连续。
+
+**这一题主要是定义low和high，初始化2个变量。**
+
+- 开始定义low
+- 然后定义high
+- 然后看看俩是不是一样的，一样就添加1个字符串就可以了
+- 那么重要的是怎么定义low和high呢？
+
+其实low就是每一次的起始值i，那么怎么找high，那就是看每一次相差为1，一直到相差为2位置的那个数组就是high
+
+### 代码
+
+```java
+class Solution {
+    public List<String> summaryRanges(int[] nums) {
+        // 初始化结果集
+        List<String> res = new ArrayList<>();
+        int i = 0;
+        // 第一个循环是遍历每一个数字
+        while (i < nums.length) {
+            int low = i;
+            i++;
+            // 第二个循环是找到单独的数组每一个区间
+            while (i < nums.length && nums[i] - nums[i - 1] == 1) i++;
+            int high = i - 1; // 因为i++了，所以这里计算high要-
+            // 构建每一个结果集里面的字符串 sb是对象
+            StringBuilder sb = new StringBuilder(Integer.toString(nums[low]));      
+            if(low < high) {
+                sb.append("->");
+                sb.append(Integer.toString(nums[high]));
+            }
+            // 对象 → 字符串
+            res.add(sb.toString()); // 添加字符串到结果集
+        }
+        return res;
+    }
+}
+
+// for实现
+class Solution {
+    public List<String> summaryRanges(int[] nums) {
+         List<String> res = new ArrayList<>();
+         for (int i = 0; i < nums.length; i++) {
+             int low = i;
+             while (i + 1 < nums.length && nums[i + 1] - nums[i] == 1) i++;
+             int high = i;
+
+            StringBuilder sb = new StringBuilder(Integer.toString(nums[low]));      
+            if(low < high) {
+                sb.append("->");
+                sb.append(Integer.toString(nums[high]));
+            }
+            // 对象 → 字符串
+            res.add(sb.toString()); // 添加字符串到结果集
+        }
+        return res;
+    }
+}
+```
+
+**难点**
+
+- low和high到底怎么查找
+- i++之后要--
+
+## [163. 缺失的区间](https://leetcode-cn.com/problems/missing-ranges/)
+
+这一题貌似是VIP专属。。
+
+![image-20211202230236660](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211202230236660.png)
+
+总之，就是给你一个范围，顺便给你2个数字组成一个范围。从这俩范围里面，看看给的范围里缺失了什么。
+
+### 思路
+
+![image-20211202230618301](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211202230618301.png)
+
+判断标准就是以2为基准点，就是没有缺少的。
+
+但是有一个小bug，比如下面这种，那就是-1的情况下，虽然0-（-1）是等于1被判断是没有缺少。
+
+但事实上是缺少的，缺少了谁呢。缺少了本身的-1，所以需要提前-1
+
+![2021-12-02 23-13-13.2021-12-02 23_13_22](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-02%2023-13-13.2021-12-02%2023_13_22.gif)
+
+### 代码
+
+```java
+public class _163_missing_ranges {
+    public List<String> findMissingRanges(int[] nums, int lower, int upper) {
+        List<String> res = new ArrayList<>();
+        long pre = lower - 1; // 为了防止溢出 用的long
+        for (int i = 0; i < nums.length; i++) {
+            // 当前的值
+            // nums[i] - pre 为了防止溢出 换成+
+            if (nums[i] == pre + 2) {
+                // 有缺失区间 正好第一位
+                res.add(String.valueOf(pre + 1));
+            } else if (nums[i] > pre + 2) {
+                // 有缺失区间 直接拼接 （当前的值 - 1）
+                res.add((pre + 1) + "->" + (nums[i] - 1));
+            }
+            pre = nums[i]; // 这里要注意 必须要进行转换到前一个值
+        }
+
+        // 走到这里应该就要走到最后了 判断最后一个值
+        // 如果给的右闭区间 等于 最后一个值 + 1 那么久缺少这个值
+        if (upper == pre + 1) res.add(String.valueOf(pre + 1));
+            // 否则就是 + 1 到 右闭区间
+        else if (upper > pre + 1) {
+            res.add((pre + 1) + "->" + upper);
+        }
+        return res;
+    }
+}
+```
 
