@@ -682,3 +682,284 @@ public class _163_missing_ranges {
 }
 ```
 
+## [31. 下一个排列](https://leetcode-cn.com/problems/next-permutation/)
+
+这题刚开始看会有点难，后来就不是很难了。
+
+```
+实现获取 下一个排列 的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列（即，组合出下一个更大的整数）。
+如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。
+必须 原地 修改，只允许使用额外常数空间。
+
+示例 1：
+输入：nums = [1,2,3]
+输出：[1,3,2]
+示例 2：
+输入：nums = [3,2,1]
+输出：[1,2,3]
+示例 3：
+输入：nums = [1,1,5]
+输出：[1,5,1]
+示例 4：
+输入：nums = [1]
+输出：[1]
+ 
+提示：
+1 <= nums.length <= 100
+0 <= nums[i] <= 100
+```
+
+![image-20211203140422209](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211203140422209.png)
+
+这一题首先你要知道如何去排列，下一个是什么找到的。
+
+![2021-12-03 14-00-39.2021-12-03 14_01_27](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-03%2014-00-39.2021-12-03%2014_01_27.gif)
+
+这一题的本质就是
+
+- 尽量找到靠右的【较小数】
+- 尽量找到靠右 且 比【较小数】大的【较大数】
+- 2个数字进行交换
+- 翻转【较小数】之后的所有数字
+
+有个特例，就是全部从大到小排序的。这个时候她的下一个数列就是翻转过来的数组。
+
+![image-20211203140453446](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211203140453446.png)
+
+所以可以使用直接模拟的方法写代码
+
+```java
+package com.chin._02._31;
+
+public class _31_next_permutation {
+    public void nextPermutation(int[] nums) {
+        // ① 从倒数第2个开始找[452631]的话就是从3
+        int i = nums.length - 2;
+        // ② 找到靠右【较小数】 俩俩相比,3和1比，3比1大向前走
+        // 最后发现2和6的时候i在2的位置，2小于6，所以2是较小数
+        while (i >= 0 && nums[i] >= nums[i + 1]) i--;
+
+        // ③ 开始找【较大数】
+        // 这个if (i >= 0) 不写的话 [1]只有1个的情况下数组会越界
+        if (i >= 0) {
+            // 从最后1个开始找，要找j所在的数字大于i所在的位置
+            int j = nums.length - 1;
+            while (j >= 0 && nums[i] >= nums[j]) j--;
+            // ④ 找到之后交换 也就是2和3交换[453621]
+            swap(nums, i, j);
+        }
+        // ⑤ 然后反转i之后的[453621]→621反转[453126]
+        reverse(nums, i + 1);
+    }
+
+
+    private void reverse(int[] nums, int start) {
+        int left = start, right = nums.length - 1;
+        while (left < right) {
+            swap(nums, left, right);
+            left++;
+            right--;
+        }
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+
+```
+
+这一题写代码需要注意的地方特别多。
+
+- 从倒数第2个开始写
+- 边界问题要思考 `while (i >= 0 && nums[i] >= nums[i + 1])`
+- 还有1个边界`while (j >= 0 && nums[i] >= nums[j]) j--;`
+- 这个为什么要写 if (i >= 0)` 也要知道是考虑到了数组越界问题
+
+## [135. 分发糖果](https://leetcode-cn.com/problems/candy/)
+
+```
+老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。
+你需要按照以下要求，帮助老师给这些孩子分发糖果：
+每个孩子至少分配到 1 个糖果。
+评分更高的孩子必须比他两侧的邻位孩子获得更多的糖果。
+那么这样下来，老师至少需要准备多少颗糖果呢？
+
+示例 1：
+输入：[1,0,2]
+输出：5
+解释：你可以分别给这三个孩子分发 2、1、2 颗糖果。
+示例 2：
+输入：[1,2,2]
+输出：4
+解释：你可以分别给这三个孩子分发 1、2、1 颗糖果。
+     第三个孩子只得到 1 颗糖果，这已满足上述两个条件。
+```
+
+这一题的思路。首先填充每一个人都会有1，然后比较，大的话就+1
+
+![2021-12-04 22-47-57.2021-12-04 22_48_55](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-04%2022-47-57.2021-12-04%2022_48_55.gif)
+
+但是如果按照上面的思路的话，会发现有问题。比如↓
+
+![2021-12-04 22-48-23.2021-12-04 22_50_29](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-04%2022-48-23.2021-12-04%2022_50_29.gif)
+
+这样你会发现遍历1次是不够的，那需要遍历多少次呢？
+
+> 要遍历到糖果没有变化的时候，也就是数组不在变化位置。
+
+上面的思路就是暴力解法。代码如下。
+
+```java
+// 只是遍历一遍 ❌
+public class _135_candy {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] candies = new int[n];
+        Arrays.fill(candies, 1);
+        for (int i = 0; i < n; i++) {
+            // i不是最后1个，并且i小孩分数大于右边小孩分数，且i小孩糖果要小于等于右边小孩
+            if (i != n - 1 && ratings[i] > ratings[i + 1] && candies[i] <= candies[i + 1]) {
+                // 当前i小孩需要右小孩的糖果+1
+                candies[i] = candies[i + 1] + 1;
+            }
+            // i不是第1个，并且i小孩分数比左边要大，且i小孩糖果要小于等于右边小孩
+            if (i != 0 && ratings[i] > ratings[i - 1] && candies[i] <= candies[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+
+        int sum = 0;
+        for (int candy : candies) sum += candy;
+        return sum;
+    }
+}
+
+// 暴力解法
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] candies = new int[n];
+        Arrays.fill(candies, 1);
+        // 初始化hasChanged是true
+        boolean hasChanged = true;
+        // 只要还是true
+        while (hasChanged) {
+            // 先改变一下状态 默认是false
+            hasChanged = false;
+            for (int i = 0; i < n; i++) {
+                // i不是最后1个，并且i小孩分数大于右边小孩分数，且i小孩糖果要小于等于右边小孩
+                if (i != n - 1 && ratings[i] > ratings[i + 1] && candies[i] <= candies[i + 1]) {
+                    // 当前i小孩需要右小孩的糖果+1
+                    candies[i] = candies[i + 1] + 1;
+                    hasChanged = true;
+                }
+                // i不是第1个，并且i小孩分数比左边要大，且i小孩糖果要小于等于右边小孩
+                if (i != 0 && ratings[i] > ratings[i - 1] && candies[i] <= candies[i - 1]) {
+                    // 当前i小孩需要左小孩的糖果+1
+                    candies[i] = candies[i - 1] + 1;
+                    hasChanged = true;
+                }
+            }
+        }
+
+        int sum = 0;
+        for (int candy : candies) sum += candy;
+        return sum;
+    }
+}
+```
+
+**为什么暴力解法的复杂度是这个？**
+
+因为在从大到小的排序的情况下，每一次遍历只能确定1个数值是不会再有变化的。
+
+![2021-12-04 23-18-55.2021-12-04 23_19_20](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-04%2023-18-55.2021-12-04%2023_19_20.gif)
+
+但是从后向前进行遍历的话，就能改变这样的方式。
+
+所以就引出了下面一种解决方法
+
+#### 两组数组前后遍历
+
+![image-20211204232326133](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211204232326133.png)
+
+这样的思路下就可以快速得到答案，
+
+代码实现
+
+```java
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] l2r = new int[n];
+        int[] r2l = new int[n];
+        Arrays.fill(l2r, 1); // 初始化从前到后
+        Arrays.fill(r2l, 1); // 初始化从后到前
+
+        // 从前到后
+        for (int i = 0; i < n; i++) {
+            // [4,5]，5大于4的话 [1,1]→[1,2]
+            if (i != 0 && ratings[i] > ratings[i - 1]) {
+                l2r[i] = l2r[i - 1] + 1;
+            }
+        }
+        int sum = 0;
+        // 从后到前
+        for (int i = n - 1; i >= 0; i--) {
+            // [2,3] [i+1,i] , 所以2要变成3+1也就是4 [4,3]
+            if (i != n - 1 && ratings[i] > ratings[i + 1]) {
+                r2l[i] = r2l[i + 1] + 1;
+            }
+            // 这个时候其实当前数组谁最大已经都确定了，这个时候直接取大的就行
+            sum = sum + Math.max(l2r[i],r2l[i]);
+        }
+        return sum;
+    }
+}
+```
+
+上面的代码稍微可以优化一下，少见一个数组。
+
+```java
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] l2r = new int[n];
+        Arrays.fill(l2r, 1); // 初始化从前到后
+
+        // 从前到后
+        for (int i = 0; i < n; i++) {
+            // [4,5]，5大于4的话 [1,1]→[1,2]
+            if (i != 0 && ratings[i] > ratings[i - 1]) {
+                l2r[i] = l2r[i - 1] + 1;
+            }
+        }
+        int sum = 0;
+        int right = 0; // 默认是0
+        // 从后到前
+        for (int i = n - 1; i >= 0; i--) {
+            if (i != n - 1 && ratings[i] > ratings[i + 1]) {
+                // 后面的大于前面 right++, 小于的话直接赋值成1就行
+                right++;
+            } else {
+                right = 1;
+            }
+            sum += Math.max(l2r[i], right);
+        }
+        return sum;
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+![image-20211203001015217](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211203001015217.png)
