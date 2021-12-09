@@ -248,3 +248,78 @@ class Solution {
 }
 ```
 
+## [36. 有效的数独](https://leetcode-cn.com/problems/valid-sudoku/)
+
+```
+请你判断一个 9 x 9 的数独是否有效。只需要 根据以下规则 ，验证已经填入的数字是否有效即可。
+数字 1-9 在每一行只能出现一次。
+数字 1-9 在每一列只能出现一次。
+数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
+ 
+注意：
+一个有效的数独（部分已被填充）不一定是可解的。
+只需要根据以上规则，验证已经填入的数字是否有效即可。
+空白格用 '.' 表示。
+```
+
+### 思路
+
+这一题的思路，如何判断是否是数独。
+
+- 逐行
+- 逐列
+- 9宫格
+
+以上三种都只能出现一次！！所以可以**新建3个9×9的九宫格**
+
+**逐行**
+
+![image-20211209234331084](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211209234331084.png)
+
+**逐列**
+
+![image-20211209234516290](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211209234516290.png)
+
+**9宫格**
+
+![image-20211209234729329](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211209234729329.png)
+
+上面就是思路，接下来是代码实现
+
+**代码实现**
+
+```java
+class Solution {
+    public boolean isValidSudoku(char[][] board) {
+        boolean[][] rowUsed = new boolean[9][9];
+        boolean[][] colUsed = new boolean[9][9];
+        boolean[][] boxUsed = new boolean[9][9];
+
+        // 初始化1个九宫格
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[0].length; col++) {
+                if (board[row][col] != '.') {
+                    // 寻找相应的位置 比如board是5(1行,2列) 
+                  	// 那么逐行这个就是5(1行,1列) 
+                    int num = board[row][col] - '1';
+                  	// 已经有了数字 那就是重复了
+                    if (rowUsed[row][num]) return false;
+                    else rowUsed[row][num] = true;
+										
+                  	// 寻找相应的位置 比如board是7(5行,2列) 
+                  	// 那么逐列这个就是5(2行,6列) 
+                    if (colUsed[col][num]) return false;
+                    else colUsed[col][num] = true;
+										// 寻找相应的位置 比如board是7(3行,2列) 
+                  	// 那么就属于第几个九宫格呢？ 1+3=4 第4个九宫格
+                    int boxIndex = row / 3 + (col / 3) * 3;
+                  	// 7(4行，6列)
+                    if (boxUsed[boxIndex][num]) return false;
+                    else boxUsed[boxIndex][num] = true;
+                }
+            }
+        }
+
+        return true;
+    }
+}
