@@ -284,9 +284,16 @@ class Solution {
 
 ![image-20211209234729329](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211209234729329.png)
 
-上面就是思路，接下来是代码实现
+上面这个表达写错了，7原本在`(0,4)` → 转换之后应该是 `(3,6)`
 
-**代码实现**
+```
+boxIndex = 0 / 3  + (4 / 3) *3 = 3
+num = 7 - 1 = 6
+```
+
+面就是思路，接下来是代码实现
+
+### **代码实现**
 
 ```java
 class Solution {
@@ -323,3 +330,212 @@ class Solution {
         return true;
     }
 }
+```
+
+## [73. 矩阵置零](https://leetcode-cn.com/problems/set-matrix-zeroes/)
+
+```
+给定一个 m x n 的矩阵，如果一个元素为 0 ，则将其所在行和列的所有元素都设为 0 。请使用 原地 算法。
+示例 1：
+输入：matrix = [[1,1,1],[1,0,1],[1,1,1]]
+输出：[[1,0,1],[0,0,0],[1,0,1]]
+示例 2：
+输入：matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]
+输出：[[0,0,0,0],[0,4,5,0],[0,3,1,0]]
+
+提示：
+m == matrix.length
+n == matrix[0].length
+1 <= m, n <= 200
+-231 <= matrix[i][j] <= 231 - 1
+
+进阶：
+一个直观的解决方案是使用  O(mn) 的额外空间，但这并不是一个好的解决方案。
+一个简单的改进方案是使用 O(m + n) 的额外空间，但这仍然不是最好的解决方案。
+你能想出一个仅使用常量空间的解决方案吗？
+```
+
+这一题就是行和列都转换成0。
+
+### 思路O(mn)
+
+首先看一下O(mn)的思路
+
+![2021-12-12 22-18-42.2021-12-12 22_19_39](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-12%2022-18-42.2021-12-12%2022_19_39.gif)
+
+因为按照上面图示那样，第一个0所在的行和列转换成0之后。会发现这样就会丢失原来的信息，比如第二个0，就不知道是**转换前0还是转换后0**
+
+所以这个时候就需**要新建一个数组，来记录。**
+
+![image-20211212222148977](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211212222148977.png)
+
+### 思路O(m+n)
+
+下面这个思路就简单多了，可以设置一个数组专门记录列是否为0，记录行是否为0。
+
+- 新建2个数组记录行列信息
+- 遇到0就写入数组信息
+- 利用2个数组的信息返回来设置矩阵信息
+
+![2021-12-12 22-24-06.2021-12-12 22_26_48](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-12%2022-24-06.2021-12-12%2022_26_48.gif)
+
+最后的样子就是
+
+![image-20211212222707769](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211212222707769.png)
+
+### 代码实现
+
+时间复杂度*O(mn)*,空间复杂度*O(m+n)*
+
+#### 基础实现1
+
+```java
+class Solution {
+    public void setZeroes(int[][] matrix) {
+        int rowLen = matrix.length;
+        int colLen = matrix[0].length;
+        // 初始化2个数组记录行列信息
+        boolean[] rows = new boolean[rowLen];
+        boolean[] cols = new boolean[colLen];
+        // 开始遍历然后记录信息
+        for (int row = 0; row < rowLen; row++) {
+            for (int col = 0; col < colLen; col++) {
+                // 其中任意元素只要为0
+                if (matrix[row][col] == 0) {
+                    // 对应的行和列就为true
+                    rows[row] = true;
+                    cols[col] = true;
+                }
+            }
+        }
+
+        // 走到这里行列信息记录完毕，修改原数组
+        for (int row = 0; row < rowLen; row++) {
+            for (int col = 0; col < colLen; col++) {
+                // 只要任意达标 是true
+                if (rows[row] || cols[col]) {
+                    // 所对应的那一行就是0
+                    // 比如这时候这个rows[0]位置为true，那么(0,0)(0,1)(0,2)...都会为0
+                    // 比如这时候这个cols(2)位置为true，那么(0,2)(1,2)(2,2)...都会为0
+                    matrix[row][col] = 0;
+                }
+            }
+        }
+    }
+}
+```
+
+如何进行优化，原地排序呢？
+
+利用原数组的第一行第一列！！记录在原数组的第一行第一列也是可行的！
+
+![image-20211212234536469](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211212234536469.png)
+
+但如果直接这样的写法有一个问题，就是下图这种。
+
+![image-20211212224515553](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211212224515553.png) 
+
+所以为了避免这种bug，需要单独计算第一行，第一列，然后从第2行第2列开始计算。
+
+时间复杂度就是O(mn)空间复杂度就是O(1) ，因为只是使用了2个布尔变量。
+
+#### 优化1 2个变量
+
+```java
+class Solution {
+    public void setZeroes(int[][] matrix) {
+        // 初始化行列信息
+        int rowLen = matrix.length;
+        int colLen = matrix[0].length;
+        // 先遍历第1行第1列
+        boolean flagRow = false;
+        for (int i = 0; i < colLen; i++) {
+            if (matrix[0][i] == 0) flagRow = true;
+        }
+
+        boolean flagCol = false;
+        for (int i = 0; i < rowLen; i++) {
+            if (matrix[i][0] == 0) flagCol = true;
+        }
+        // 从第2行开始记录
+        for (int row = 1; row < rowLen; row++) {
+            for (int col = 1; col < colLen; col++) {
+                if (matrix[row][col] == 0) {
+                    matrix[0][col] = 0;
+                    matrix[row][0] = 0;
+                }
+            }
+        }
+        // 修改原数组
+ 	      // 如果自己所在的行和列有任意一个为0，那么自己就是0 
+        for (int row = 1; row < rowLen; row++) {
+            for (int col = 1; col < colLen; col++) {
+                // 当第一行任意一个等于0
+                if (matrix[0][col] == 0 || matrix[row][0] == 0) {
+                    matrix[row][col] = 0;
+                }
+            }
+        }
+
+        // 第1行第1列全为0
+        if (flagRow) {
+            for (int i = 0; i < colLen; i++) matrix[0][i] = 0;
+        }
+
+        if (flagCol) {
+            for (int i = 0; i < rowLen; i++) matrix[i][0] = 0;
+        }
+    }
+}
+```
+
+其实还可以继续优化
+
+#### 优化2 1个变量
+
+![image-20211212225019259](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211212225019259.png)
+
+其实这一题整体思路就是和上面一样，只不过少用了1个变量。并且是从后向前遍历的。
+
+- 只记录第一列是否包含0
+- 从后向前
+
+从后向前的顺序
+
+![image-20211213013400642](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211213013400642.png)
+
+```java
+class Solution {
+    public void setZeroes(int[][] matrix) {
+        // 初始化行列信息
+        int rowLen = matrix.length;
+        int colLen = matrix[0].length;
+
+        boolean flagRow = false;
+        // 因为只记录第1列的信息，所以row从0开始
+        for (int row = 0; row < rowLen; row++) {
+            if (matrix[row][0] == 0) flagRow = true;
+            for (int col = 1; col < colLen; col++) {
+                // 只要元素为0，所在的行列就为0
+                if (matrix[row][col] == 0) {
+                    matrix[row][0] = 0;
+                    matrix[0][col] = 0;
+                }
+            }
+        }
+
+        // 记住！这里要从后向前遍历 并且看好顺序，是从最后一行开始从左向右
+        for (int row = rowLen - 1; row >= 0; row--) {
+            for (int col = 1; col < colLen; col++) {
+                // 只要行列任意为0，那么自己就是0
+                if (matrix[row][0] == 0 || matrix[0][col] == 0) {
+                    matrix[row][col] = 0;
+                }
+            }
+            // 如果第一列的行头是0，那么整列就是0
+            if (flagRow) matrix[row][0] = 0;
+        }
+    }
+}
+```
+
