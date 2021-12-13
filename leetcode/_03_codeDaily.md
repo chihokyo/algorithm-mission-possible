@@ -539,3 +539,236 @@ class Solution {
 }
 ```
 
+## [54. 螺旋矩阵](https://leetcode-cn.com/problems/spiral-matrix/)
+
+```
+给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
+示例 1：
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+示例 2：
+输入：matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+输出：[1,2,3,4,8,12,11,10,9,5,6,7]
+
+提示：
+m == matrix.length
+n == matrix[i].length
+1 <= m, n <= 10
+-100 <= matrix[i][j] <= 100
+```
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg)
+
+### 思路（直接模拟）
+
+这一题就是按照顺序走，碰壁了就转换方向。
+
+直接模拟
+
+![image-20211213150022541](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211213150022541.png)
+
+### 代码实现
+
+这里最难的就是方向上初始值的设定了，为什么要初始化这个变量。
+
+```
+int[][] dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+```
+
+目的就是为了
+
+- 记录增减
+- 变换方向（其实这个本质也就是控制记录下行列的增减）
+
+```java
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        // 定义4个方向
+        int[][] dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        int rows = matrix.length; // 多少行
+        int cols = matrix[0].length; // 多少列
+
+        int row = 0, col = 0;
+        int dir = 0;
+        List<Integer> res = new ArrayList<>(); // 结果集
+        boolean[][] visited = new boolean[rows][cols]; // 判断是否被访问
+
+        // 开始遍历每一个元素
+        for (int i = 0; i < rows * cols; i++) {
+            res.add(matrix[row][col]); // 添加到结果集
+            visited[row][col] = true; // 添加成功，就标记到已访问
+            // 这里求的是下一个该走的位置
+            // 第一次是 dirs[0][0], 也就是{0,1}里的0
+            int nextRow = row + dirs[dir][0];
+            // 第一次是 dirs[0][1], 也就是{0,1}里的1
+            int nextCol = col + dirs[dir][1];
+
+            // 判断4种情况
+            if (nextRow < 0 // 超出范围 从右向左 ←
+                    || nextRow >= rows // 超出范围 从左向右 →
+                    || nextCol < 0 // 超出范围 从下到上 ↑
+                    || nextCol >= cols // 超出范围 从上到 ↓
+                    || visited[nextRow][nextCol] // 并且访问了
+            ) {
+                // 相当于 {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+                // 从 {{0, 1} 走到了 {1, 0}
+                dir = (dir + 1) % 4; // 有可能越界，所以取模
+            }
+
+            // 重新计算方向 也就是向下一个该怎么走
+            row = row + dirs[dir][0];
+            col = col + dirs[dir][1];
+        }
+
+        return res;
+    }
+}
+```
+
+### 思路（按层模拟）
+
+如果这里的直接代码实现看不懂的话，可以看这题解[稍微客观点](https://leetcode-cn.com/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/solution/mian-shi-ti-29-shun-shi-zhen-da-yin-ju-zhen-she-di/)
+
+本质就是先遍历第1行，然后最后1列，最后1行，第1列
+
+![2021-12-13 17-24-03.2021-12-13 17_24_41](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-13%2017-24-03.2021-12-13%2017_24_41.gif)
+
+遍历完最后外面那一层之后，然后变量相应的++，--。
+
+![2021-12-13 17-24-30.2021-12-13 17_25_13](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-13%2017-24-30.2021-12-13%2017_25_13.gif)
+
+### 代码实现
+
+这里只有1行1列的情况
+
+![image-20211213180432324](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211213180432324.png)
+
+```java
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        // 新建结果集
+        List<Integer> res = new ArrayList<>();
+        // 初始化行列开始结尾4个变量
+        int rowS = 0, rowE = matrix.length - 1;
+        int colS = 0, colE = matrix[0].length - 1;
+        // top → right → bottom → left 进行遍历
+        while (rowS <= rowE && colS <= colE) {
+            // top 最上面1行
+            for (int col = colS; col <= colE; col++) res.add(matrix[rowS][col]);
+            // right
+            for (int row = rowS + 1; row <= rowE; row++) res.add(matrix[row][colE]);
+            // 这里要进行判断，如果只有1行和只有1列的情况下
+            if (rowS < rowE && colS < colE) {
+                // 为什么从-1开始，因为最后一个属于right那里，为什么没有=，因为最后1个属于 left
+                // bottom
+                for (int col = colE - 1; col > colS; col--) res.add(matrix[rowE][col]);
+                // left
+                // 为什么又不从-1开始，因为这里是从最底部开始的，正好是right那里拿来的
+                // 为什么又没有== 因为==那个属于top 其实看一下图就能知道
+                for (int row = rowE; row > rowS; row--) res.add(matrix[row][colS]);
+            }
+            rowS++;
+            rowE--;
+            colS++;
+            colE--;
+        }
+        return res;
+    }
+}
+```
+
+## [59. 螺旋矩阵 II](https://leetcode-cn.com/problems/spiral-matrix-ii/)
+
+```
+给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+
+示例 1：
+输入：n = 3
+输出：[[1,2,3],[8,9,4],[7,6,5]]
+
+示例 2：
+输入：n = 1
+输出：[[1]]
+ 
+提示：
+1 <= n <= 20
+```
+
+其实这一题就是给了你一个数字，让你倒推过来一个矩阵。
+
+这个唯一一个和上面的区别就是**更简单**了
+
+### 代码实现
+
+#### 直接模拟
+
+```java
+class Solution {
+    public int[][] generateMatrix(int n) {
+        // top,right,bottom,left
+        int[][] dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        int row = 0, col = 0, dir = 0;
+        boolean[][] visited = new boolean[n][n];
+        int[][] res = new int[n][n];
+        for (int i = 0; i < n * n; i++) {
+            
+            res[row][col] = i + 1;
+            visited[row][col] = true;
+            int nextRow = row + dirs[dir][0];
+            int nextCol = col + dirs[dir][1];
+
+            if (nextRow < 0 || nextRow >= n
+                    || nextCol < 0 || nextCol >= n
+                    || visited[nextRow][nextCol]) {
+                // 改变方向
+                dir = (dir + 1) % 4;
+            }
+
+            row += dirs[dir][0];
+            col += dirs[dir][1];
+        }
+        return res;
+    }
+}
+```
+
+
+
+#### 按层实现
+
+```java
+class Solution {
+    public int[][] generateMatrix(int n) {
+        // 新建结果集
+        int[][] res = new int[n][n];
+        // 初始化行列开始结尾4个变量
+        int rowS = 0, rowE = n - 1;
+        int colS = 0, colE = n - 1;
+
+        int i = 1; // 因为题目要求1开始
+        // top → right → bottom → left 进行遍历
+        while (rowS <= rowE && colS <= colE) {
+            // top 最上面1行
+            for (int col = colS; col <= colE; col++) res[rowS][col] = i++;
+            // right
+            for (int row = rowS + 1; row <= rowE; row++) res[row][colE] = i++;
+            // 这里要进行判断，如果只有1行和只有1列的情况下
+            if (rowS < rowE && colS < colE) {
+                // 为什么从-1开始，因为最后一个属于right那里，为什么没有=，因为最后1个属于 left
+                // bottom
+                for (int col = colE - 1; col > colS; col--) res[rowE][col] = i++;
+                // left
+                // 为什么又不从-1开始，因为这里是从最底部开始的，正好是right那里拿来的
+                // 为什么又没有== 因为==那个属于top 其实看一下图就能知道
+                for (int row = rowE; row > rowS; row--) res[row][colS] = i++;
+            }
+            rowS++;
+            rowE--;
+            colS++;
+            colE--;
+        }
+        return res;
+    }
+}
+```
+
