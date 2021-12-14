@@ -851,3 +851,194 @@ class Solution {
 }
 ```
 
+## [118. 杨辉三角](https://leetcode-cn.com/problems/pascals-triangle/)
+
+```
+给定一个非负整数 numRows，生成「杨辉三角」的前 numRows 行。
+在「杨辉三角」中，每个数是它左上方和右上方的数的和。
+
+示例 1:
+输入: numRows = 5
+输出: [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]
+示例 2:
+输入: numRows = 1
+输出: [[1]]
+
+提示:
+1 <= numRows <= 30
+```
+
+![img](https://pic.leetcode-cn.com/1626927345-DZmfxB-PascalTriangleAnimated2.gif)
+
+杨辉三角的特征
+
+- **第一个**和**最后一个**值都是1
+- 第二个元素开始都是斜上方的2个和，↑
+
+### 思路
+
+![image-20211214234306765](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211214234306765.png)
+
+### 代码实现
+
+使用代码可以更好实现。
+
+注意点
+
+- `for (int row = 0; row < numRows; row++)`
+- ` for (int col = 0; col <= row; col++)` → 这里要取到最后1个才可以
+
+为什么呢，第一次我不了解。这里为什么第2个是==，是因为比如0行的时候是1个元素，那么肯定要有1个。
+
+1行的时候本质是2个元素，那么肯定要循环2次。
+
+2行的时候其实是3个元素，那么肯定要3次。
+
+n行的时候其实是n+1个元素，那么肯定要取==
+
+```java
+class Solution {
+    public List<List<Integer>> generate(int numRows) {
+        // 新建结果集
+        List<List<Integer>> res = new ArrayList<>();
+        // 开始遍历每一列
+        for (int row = 0; row < numRows; row++) {
+            // 每一列单独的数组
+            List<Integer> oneRow = new ArrayList<>();
+            for (int col = 0; col <= row; col++) {
+                // 判断一下列是不是第1个or最后1个
+                if(col == 0 || col == row) {
+                    oneRow.add(1);
+                } else {
+                    // 先获取上1行的那一行的值
+                    List<Integer> preRow = res.get(row - 1);
+                    // 然后根据现在自己的col-1,col得到值
+                    Integer curValue = preRow.get(col - 1) + preRow.get(col);
+                    // 加入单独那一行
+                    oneRow.add(curValue);
+                }
+            }
+            // 添加到结果集
+            res.add(oneRow);
+        }
+        // 返回结果集
+        return res;
+    }
+}
+```
+
+## [119. 杨辉三角 II](https://leetcode-cn.com/problems/pascals-triangle-ii/)
+
+```
+给定一个非负索引 rowIndex，返回「杨辉三角」的第 rowIndex 行。
+
+在「杨辉三角」中，每个数是它左上方和右上方的数的和。
+
+示例 1:
+输入: rowIndex = 3
+输出: [1,3,3,1]
+示例 2:
+输入: rowIndex = 0
+输出: [1]
+示例 3:
+输入: rowIndex = 1
+输出: [1,1]
+
+提示:
+0 <= rowIndex <= 33
+
+进阶：
+你可以优化你的算法到 O(rowIndex) 空间复杂度吗？
+```
+
+其实这一题和118的区别就是
+
+- 不要全部，只要那一行
+- 空闲复杂度是`O(rowIndex)`
+
+### 思路
+
+主要只是简单的去按照上一题去写，不考虑空间复杂度
+
+```java
+// 按照上一题的思路来写的
+class Solution {
+    public List<Integer> getRow(int rowIndex) {
+        // 新建结果集
+        List<List<Integer>> res = new ArrayList<>();
+        // 因为要第5行，所以事实上是index+1那一行 要==
+        for (int row = 0; row <= rowIndex; row++) {
+            // 每一列单独的数组
+            List<Integer> oneRow = new ArrayList<>();
+            for (int col = 0; col <= row; col++) {
+                // 判断一下列是不是第1个or最后1个
+                if (col == 0 || col == row) {
+                    oneRow.add(1);
+                } else {
+                    // 然后根据现在自己的col-1,col得到值
+                    List<Integer> preRow = res.get(row - 1);
+                    Integer curValue = preRow.get(col - 1) + preRow.get(col);
+                    oneRow.add(curValue);
+                }
+            }
+            // 内循环结束，这样每一行内部就得到了
+            res.add(oneRow);
+        }
+        // ！！只要那一行
+        return res.get(rowIndex);
+    }
+}
+
+// 稍微有了点优化
+class Solution {
+    public List<Integer> getRow(int rowIndex) {
+        // 因为只需要rowIndex的结果 所以初始化的时候，不需要一整个结果集
+        // 前一个的row
+        List<Integer> preRow = new ArrayList<>();
+        // 因为要第5行，所以事实上是index+1那一行 要==
+        for (int row = 0; row <= rowIndex; row++) {
+            // 每一列单独的数组
+            List<Integer> oneRow = new ArrayList<>();
+            for (int col = 0; col <= row; col++) {
+                // 判断一下列是不是第1个or最后1个
+                if (col == 0 || col == row) {
+                    oneRow.add(1);
+                } else {
+                    // 然后根据现在自己的col-1,col得到值
+                    // 直接获取当前的行
+                    oneRow.add(preRow.get(col - 1) + preRow.get(col));
+                }
+            }
+            preRow = oneRow;
+        }
+        // 这个时候前一个row就是当前的row
+        return preRow;
+    }
+}
+```
+
+那么如何做到`O(rowIndex)`的空间复杂度呢？
+
+其实本质就是 **当前的值 = 前一个值 + 当前的值**
+
+需要从后向前遍历
+
+![image-20211215003558378](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211215003558378.png)
+
+```java
+class Solution {
+    public List<Integer> getRow(int rowIndex) {
+        List<Integer> res = new ArrayList<>();
+        res.add(1); // 首先第1行第1个肯定是1
+        for (int row = 1; row <= rowIndex; row++) {
+            res.add(0); // 这里java特有的，需要先初始化
+            for (int col = row; col > 0; col--) {
+                // 当前的索引值 = 前一个值 + 自身的值
+                res.set(col, res.get(col - 1) + res.get(col));
+            }
+        }
+        return res;
+    }
+}
+```
+
