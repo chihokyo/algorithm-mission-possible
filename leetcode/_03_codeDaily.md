@@ -1,4 +1,4 @@
-# 算法日记
+#  算法日记
 
 第3天的。继续加油吧。
 
@@ -766,6 +766,85 @@ class Solution {
             rowE--;
             colS++;
             colE--;
+        }
+        return res;
+    }
+}
+```
+
+## [498. 对角线遍历](https://leetcode-cn.com/problems/diagonal-traverse/)
+
+```
+给你一个大小为 m x n 的矩阵 mat ，请以对角线遍历的顺序，用一个数组返回这个矩阵中的所有元素。
+
+示例 1：
+输入：mat = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,4,7,5,3,6,8,9]
+示例 2：
+输入：mat = [[1,2],[3,4]]
+输出：[1,2,3,4]
+ 
+提示：
+m == mat.length
+n == mat[i].length
+1 <= m, n <= 104
+1 <= m * n <= 104
+-105 <= mat[i][j] <= 105
+```
+
+![img](https://assets.leetcode.com/uploads/2021/04/10/diag1-grid.jpg)
+
+### 思路
+
+这一题是需要事先找到规律的，经过一番推理之后找到的规律如下。
+
+![image-20211214161850809](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211214161850809.png)
+
+这一题只要找到规律，几乎就可以做出来，但是规律需要自己推导。
+
+```java
+class Solution {
+    public int[] findDiagonalOrder(int[][] mat) {
+        // 特殊判断
+        if (mat.length == 0) return new int[0];
+        int rowLen = mat.length; // row行长度
+        int colLen = mat[0].length; // col列长度
+        int[] res = new int[rowLen * colLen]; // 初始化结果集
+        int[][] dirs = {{-1, 1}, {1, -1}}; // 斜下走初始化，斜上走初始化
+
+        int row = 0, col = 0, dir = 0; // 初始化行列方向
+        // 开始遍历
+        for (int i = 0; i < rowLen * colLen; i++) {
+            // 先赋值
+            res[i] = mat[row][col];
+            // 然后找寻下一个
+            row = row + dirs[dir][0];
+            col = col + dirs[dir][1];
+
+            // 以下4个判断的顺序不能打乱
+            // 如果超过列
+            if (col >= colLen) {
+                col = colLen - 1;
+                row += 2;
+                dir = 1 - dir;
+            }
+            // 如果超过行
+            if (row >= rowLen) {
+                row = rowLen - 1;
+                col += 2;
+                dir = 1 - dir;
+            }
+            // 如果小于行
+            if (row < 0) {
+                row = 0;
+                dir = 1 - dir;
+            }
+            // 如果小于列
+            if (col < 0) {
+                col = 0;
+                dir = 1 - dir;
+            }
+
         }
         return res;
     }
