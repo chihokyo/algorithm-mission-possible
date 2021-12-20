@@ -1,4 +1,4 @@
-package com.chin._04._28._459;
+package com.chin._04._459;
 
 public class _459_repeated_substring_pattern {
 

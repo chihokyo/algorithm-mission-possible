@@ -267,3 +267,371 @@ class Solution {
 }
 ```
 
+## [344. 反转字符串](https://leetcode-cn.com/problems/reverse-string/)
+
+```
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 s 的形式给出。
+不要给另外的数组分配额外的空间，你必须原地修改输入数组、使用 O(1) 的额外空间解决这一问题。
+
+示例 1：
+输入：s = ["h","e","l","l","o"]
+输出：["o","l","l","e","h"]
+示例 2：
+输入：s = ["H","a","n","n","a","h"]
+输出：["h","a","n","n","a","H"]
+ 
+提示：
+1 <= s.length <= 105
+s[i] 都是 ASCII 码表中的可打印字符
+```
+
+这一题其实早就做过了 ，详情看day1
+
+## [345. 反转字符串中的元音字母](https://leetcode-cn.com/problems/reverse-vowels-of-a-string/)
+
+```
+给你一个字符串 s ，仅反转字符串中的所有元音字母，并返回结果字符串。
+元音字母包括 'a'、'e'、'i'、'o'、'u'，且可能以大小写两种形式出现。
+
+示例 1：
+输入：s = "hello"
+输出："holle"
+示例 2：
+输入：s = "leetcode"
+输出："leotcede"
+
+提示：
+1 <= s.length <= 3 * 105
+s 由 可打印的 ASCII 字符组成
+```
+
+这一题，注意大小写都可以。
+
+### 思路
+
+![2021-12-18 00-12-50.2021-12-18 00_13_22](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-18%2000-12-50.2021-12-18%2000_13_22.gif)
+
+- 这一题其实就是从前开始看，从后开始看，遇到元音就交换。
+- 比如，找到第1个元音字母和最后1个元音字母交换。
+- 比如，找到第2个元音字母和倒数第2个元音字母交换。
+- ....以此类推
+
+### 代码实现
+
+双指针
+
+```java
+// for
+class Solution {
+    public String reverseVowels(String s) {
+       // 字符串 → 字符数组
+        char[] chars = s.toCharArray();
+        int n = s.length();
+        // 双指针
+        int left = 0, right = n - 1;
+        for (; left < right; left++, right--) {
+            for (;left < right && !checkVowel(chars[left]);left++){}
+            for (;left < right && !checkVowel(chars[right]);right--){}
+            // 判断不是原因之后才向前
+            char temp = chars[left];
+            chars[left] = chars[right];
+            chars[right] = temp;
+        }
+         return String.valueOf(chars);
+    }
+    // 判断是否为元音
+    private boolean checkVowel(char c) {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u'
+                || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U';
+    }
+}
+
+// while
+class Solution {
+    public String reverseVowels(String s) {
+        // 字符串 → 字符数组
+        char[] chars = s.toCharArray();
+        int n = s.length();
+        // 双指针
+        int left = 0, right = n - 1;
+        while (left < right) {
+            // 如果不是元音 才向前走
+            while (left < right && !checkVowel(chars[left])) left++;
+            while (left < right && !checkVowel(chars[right])) right--;
+            // 判断不是原因之后才向前
+            char temp = chars[left];
+            chars[left] = chars[right];
+            chars[right] = temp;
+            left++;
+            right--;
+        }
+
+        return String.valueOf(chars);
+    }
+    // 判断是否为元音
+    private boolean checkVowel(char c) {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u'
+                || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U';
+    }
+}
+```
+
+## 1119 删除字符串中所有的元音字母
+
+![image-20211220161335772](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211220161335772.png)
+
+这一题需要开会员才能写，但是很简单，就随便实现一下了。
+
+```java
+public class _1119_remove_vowels_from_a_string {
+    public String removeVowels(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (!isVowel(c)) sb.append(c);
+        }
+        return sb.toString();
+    }
+
+    private boolean isVowel(char c) {
+        return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
+    }
+}
+```
+
+## [541. 反转字符串 II](https://leetcode-cn.com/problems/reverse-string-ii/)
+
+```
+给定一个字符串 s 和一个整数 k，从字符串开头算起，每计数至 2k 个字符，就反转这 2k 字符中的前 k 个字符。
+如果剩余字符少于 k 个，则将剩余字符全部反转。
+如果剩余字符小于 2k 但大于或等于 k 个，则反转前 k 个字符，其余字符保持原样。
+ 
+示例 1：
+输入：s = "abcdefg", k = 2
+输出："bacdfeg"
+示例 2：
+输入：s = "abcd", k = 2
+输出："bacd"
+
+提示：
+1 <= s.length <= 104
+s 仅由小写英文组成
+1 <= k <= 104
+```
+
+这一题看这个图片应该就是有思路的
+
+### 思路
+
+![2021-12-20 16-21-21.2021-12-20 16_21_32](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-20%2016-21-21.2021-12-20%2016_21_32.gif)
+
+就是每2k，然后反转前k个的意思
+
+这个时候需要3个指针进行遍历
+
+- start 标识每一个k的起始点
+- left标识反转的左边界
+- right 标识反转的右边界
+- 然后进行遍历
+
+![2021-12-20 16-22-12.2021-12-20 16_22_33](https://raw.githubusercontent.com/chihokyo/image_host/develop/2021-12-20%2016-22-12.2021-12-20%2016_22_33.gif)
+
+这一题主要的问题是如果start已经超过字符串长度的时候left和right在哪里，该如何反转的问题
+
+```java
+int left = start;
+int right = Math(left + k - 1, s.length() - 1); // 取最小的那个
+// 例如上面那个动图，start已经在最后一个u前面了
+// 这个时候right肯定超过了字符串的最大长度，所以也只能取u的位置
+```
+
+![image-20211220163130625](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211220163130625.png)
+
+所以代码很容易就写了
+
+### 代码实现
+
+```java
+class Solution {
+    public String reverseStr(String s, int k) {
+        char[] strArr = s.toCharArray();
+        // 每次增加k的长度
+        for (int start = 0; start < s.length(); start += k * 2) {
+            int left = start;
+            // 右边界要取最小的那边
+            int right = Math.min(left + k - 1, s.length() - 1);
+            while (left < right) {
+                char temp = strArr[left];
+                strArr[left] = strArr[right];
+                strArr[right] = temp;
+                left++;
+                right--;
+            }
+        }
+        return new String(strArr);
+    }
+}
+```
+
+## [557. 反转字符串中的单词 III](https://leetcode-cn.com/problems/reverse-words-in-a-string-iii/)
+
+```
+给定一个字符串，你需要反转字符串中每个单词的字符顺序，同时仍保留空格和单词的初始顺序。
+
+示例：
+输入："Let's take LeetCode contest"
+输出："s'teL ekat edoCteeL tsetnoc"
+
+提示：
+在字符串中，每个单词由单个空格分隔，并且字符串中不会有任何额外的空格。
+```
+
+思路的话很清晰
+
+### 思路
+
+![image-20211220165843381](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20211220165843381.png)
+
+```java
+// 写在里面
+class Solution {
+    public String reverseWords(String s) {
+        char[] chars = s.toCharArray();
+        int n = s.length();
+        int left = 0;
+        while (left < n) {
+            if (chars[left] != ' ') {
+                int right = left;
+                while(right + 1 < n && chars[right + 1] != ' ') right++;
+                // 就是这里！！这里需要在进行定义左右指针
+                // 保证在赋值的时候left和right保持独立
+                int start = left;
+                int end = right;
+                while (start < end) {
+                    char temp = chars[start];
+                    chars[start++] = chars[end];
+                    chars[end--] = temp;
+                }
+
+                left = right + 1;
+            } else {
+                left++;
+            }
+        }
+        return new String(chars);
+    }
+}
+
+// 写在外面
+class Solution {
+    public String reverseWords(String s) {
+        int n = s.length();
+        char[] chars = s.toCharArray();
+        int left = 0;
+        while (left < n) {
+            if (chars[left] != ' ') {
+                int right = left;
+                while (right + 1 < n && chars[right + 1] != ' ') right++;
+                // 这个时候left right都已经固定了
+                // 左右反转
+                reserve(chars, left, right);
+                left = right + 1;
+            } else {
+                left++;
+            }
+        }
+        return new String(chars);
+    }
+
+    private void reserve(char[] chars, int start, int end) {
+        char temp;
+        while (start < end) {
+            temp = chars[start];
+            chars[start++] = chars[end];
+            chars[end--] = temp;
+        }
+    }
+
+}
+```
+
+这一题在写代码的时候遇到一个很难的问题，就是反转函数写在里面还是外面的问题。
+
+这个问题涉及 值传递，引用传递，这个问题不搞清楚就很难难。。。
+
+## [58. 最后一个单词的长度](https://leetcode-cn.com/problems/length-of-last-word/)
+
+```
+给你一个字符串 s，由若干单词组成，单词前后用一些空格字符隔开。返回字符串中最后一个单词的长度。
+单词 是指仅由字母组成、不包含任何空格字符的最大子字符串。
+
+示例 1：
+输入：s = "Hello World"
+输出：5
+示例 2：
+输入：s = "   fly me   to   the moon  "
+输出：4
+示例 3：
+输入：s = "luffy is still joyboy"
+输出：6
+
+提示：
+1 <= s.length <= 104
+s 仅有英文字母和空格 ' ' 组成
+s 中至少存在一个单词
+```
+
+### 思路
+
+这一题有2种解法，从左向右，从右向左。
+
+从左向右，一看就不是最优解！！都求最后一个单词的长度了，怎么可能是从左向右。
+
+- 从最后一个开始遍历，遇到不为空就记住 变量1
+- 然后定义另一个，然后开始找，遇到不为空就记住 变量2
+- 变量2 - 变量1 就是结果
+
+### 代码实现
+
+```java
+// 从右到左
+class Solution {
+    public int lengthOfLastWord(String s) {
+        // 指针1 指向最后一个
+        int end = s.length() - 1;
+        while (end >= 0 && s.charAt(end) == ' ') end--;
+        if (end < 0)  return 0;
+        // 到这里了就应该得到了第一个不为空的指针所处的位置
+        int start = end; // 然后赋值给第2个指针
+        while (start >= 0 && s.charAt(start) != ' ') start--;
+        // 前指针 - 后指针
+        return end - start;
+    }
+}
+
+// 从左到右
+class Solution {
+    public int lengthOfLastWord(String s) {
+        int res = 0;
+        int start = 0, end = 0;
+        while (end < s.length()) {
+            // 从左向右 只要为空就向前走
+            if (s.charAt(start) == ' ') {
+                start++;
+                end++;
+            } else {
+                // 不为空了 那么end不为空就向前走
+                while (end < s.length() && s.charAt(end) != ' ') end++;
+                // 到这里应该end和start都是确定的
+                res = end - start;
+                while (end < s.length() && s.charAt(end) == ' ') end++;
+                if (end < s.length() && s.charAt(end) != ' ') {
+                    start = end;
+                }
+
+            }
+        }
+        return res;
+    }
+}
+```
+
