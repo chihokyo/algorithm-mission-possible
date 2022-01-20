@@ -247,3 +247,183 @@ public boolean isPalindrome3(int x) {
 
 - res < x 终止条件是只要大于x就终止
 - ` res == x || x == res / 10;` 这里对比的是res去掉最后1位，而不是x哦
+
+## [989. 数组形式的整数加法](https://leetcode-cn.com/problems/add-to-array-form-of-integer/)
+
+```
+对于非负整数 X 而言，X 的数组形式是每位数字按从左到右的顺序形成的数组。例如，如果 X = 1231，那么其数组形式为 [1,2,3,1]。
+给定非负整数 X 的数组形式 A，返回整数 X+K 的数组形式。
+
+示例 1：
+输入：A = [1,2,0,0], K = 34
+输出：[1,2,3,4]
+解释：1200 + 34 = 1234
+示例 2：
+输入：A = [2,7,4], K = 181
+输出：[4,5,5]
+解释：274 + 181 = 455
+示例 3：
+输入：A = [2,1,5], K = 806
+输出：[1,0,2,1]
+解释：215 + 806 = 1021
+示例 4：
+输入：A = [9,9,9,9,9,9,9,9,9,9], K = 1
+输出：[1,0,0,0,0,0,0,0,0,0,0]
+解释：9999999999 + 1 = 10000000000
+
+提示：
+1 <= A.length <= 10000
+0 <= A[i] <= 9
+0 <= K <= 10000
+如果 A.length > 1，那么 A[0] != 0
+```
+
+### 思路
+
+首先先做一个2个整数数组的加法
+
+```java
+public List<Integer> addTwoNum(int[] nums1, int[] nums2) {
+    List<Integer> res = new ArrayList<>();
+    int len1 = nums1.length - 1;
+    int len2 = nums2.length - 1;
+    int carry = 0; // 默认为0
+    while (len1 >= 0 || len2 >= 0) {
+        int x = len1 < 0 ? 0 : nums1[len1];
+        int y = len2 < 0 ? 0 : nums2[len2];
+        int sum = x + y + carry;
+        // sum % 10 相当于要最后个位
+        res.add(sum % 10);
+        carry = sum / 10; // 取出来进位
+        len1--;
+        len2--;
+    }
+    // 要先做判断不能为0，不然反转会回来会多个0
+    // 不能忘记添加最后1个进位 比如 222 + 899 = (1)121
+    if (carry != 0) res.add(carry);
+    Collections.reverse(res); // 添加是从前面添加的
+    return res;
+}
+```
+
+![image-20220120222334960](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220120222334960.png)
+
+不同点就是
+
+- 结束条件不同
+- k取模 获取最后1位
+- k取商 去掉最后1位
+
+### 代码实现
+
+```java
+public List<Integer> addToArrayForm(int[] num, int k) {
+    List<Integer> res = new ArrayList<>();
+    int len = num.length - 1;
+    int carry = 0;
+    // 遍历条件 这里一旦数组index没有 并且 K等于0就跳出来了
+    while (len >= 0 || k != 0) {
+        // 不能这样简单相加 int sum = num[len] + k % 10 + carry;
+        int x = len < 0 ? 0 : num[len]; // 因为x和y中间可能任一一方提前结束
+        int y = k == 0 ? 0 : k % 10;
+        int sum = x + y + carry;
+        res.add(sum % 10); // 只能取最后1位
+        carry = sum / 10;  // 计算carry
+        len--;
+        k = k / 10; // 每次都要去掉最后1位 取商 这里的目的是为了逐一去掉个位 1886→188→18→1
+    }
+    // 这里！！重要，没有的话就会造成 888 + 666 = 554（1554的1 会丢掉）
+    if (carry != 0) res.add(carry);
+    Collections.reverse(res);
+    return res;
+}
+```
+
+这里要注意的地方有
+
+- 结束条件`k != 0` 因为一直取模的话，最后就是0。等于0，说明取模完了。
+- carry记得要计算` carry = sum / 10`
+
+## [66. 加一](https://leetcode-cn.com/problems/plus-one/)
+
+```
+给定一个由 整数 组成的 非空 数组所表示的非负整数，在该数的基础上加一。
+最高位数字存放在数组的首位， 数组中每个元素只存储单个数字。
+你可以假设除了整数 0 之外，这个整数不会以零开头。
+
+示例 1：
+输入：digits = [1,2,3]
+输出：[1,2,4]
+解释：输入数组表示数字 123。
+示例 2：
+输入：digits = [4,3,2,1]
+输出：[4,3,2,2]
+解释：输入数组表示数字 4321。
+示例 3：
+输入：digits = [0]
+输出：[1]
+
+提示：
+1 <= digits.length <= 100
+0 <= digits[i] <= 9
+```
+
+### 思路
+
+其实这一题总共就是为了判断三种情况
+
+- 1234 这种在正常不过
+- 1889 这种在倒数第2位的时候出现了一个9，那么9+1=10 这个时候要变成0，然后会再继续循环1次，就变成上面那种情况
+- 1999 如果这个时候全部循环了还没返回，就需要新建一个数组，长度+1
+
+### 代码实现
+
+这是实现1
+
+```java
+class Solution {
+    public int[] plusOne(int[] digits) {
+        // 三种情况
+        // 1. 1654
+        // 2. 2889
+        // 3. 9999
+        // 开始遍历
+        for(int i = digits.length - 1; i >= 0 ;i--) {
+            // 最后一个加起来
+            digits[i]++;
+            // 如果等于10 那么当前的数字就是10
+            if(digits[i] == 10) {
+                // 注意这里不能直接return 因为循环还要继续 不然 2889 就不可能是2900 而是2890
+                digits[i] = 0;
+            // 如果不等于10 那么相当于直接 1654这种情况 直接返回
+            } else {
+                return digits;
+            }
+        }
+        // 如果全部循环结束之后并没有返回 那就是9999的情况 变成10000
+        digits = new int[digits.length + 1];
+        digits[0] = 1;
+        return digits;
+    }
+}
+```
+
+下面是实现2，其实思路和上面一模一样。只是在判断当前数字是不是10的时候，用的是取模。因为任何跟个位数跟10取模，除了10以外全部是本身，10取模10是0
+
+```java
+class Solution {
+    public int[] plusOne(int[] digits) {
+        for (int i = digits.length - 1; i >= 0; i--) {
+            digits[i]++;
+            // 用10取模来判定
+            // ∵任何跟个位数跟10取模，除了10以外全部是本身，10取模10是0
+            digits[i] = digits[i] % 10;
+            if (digits[i] != 0) return digits;
+        }
+        digits = new int[digits.length + 1];
+        digits[0] = 1;
+        return digits;
+    }
+}
+```
+
