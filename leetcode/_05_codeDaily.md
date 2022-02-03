@@ -1,4 +1,4 @@
-#  算法日记
+#### [204. 计数质数](https://leetcode-cn.com/problems/count-primes/)算法日记
 
 数学开始咯！！字符串的主要题目有
 
@@ -633,5 +633,349 @@ class Solution {
 ```java
 cur.next = new ListNode(sum % 10); // 赋值 只是赋值 指针没变 走个屁
 cur = cur.next; // 指针向前走
+```
+
+## [43. 字符串相乘](https://leetcode-cn.com/problems/multiply-strings/)
+
+```
+给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。
+注意：不能使用任何内置的 BigInteger 库或直接将输入转换为整数。
+
+示例 1:
+输入: num1 = "2", num2 = "3"
+输出: "6"
+示例 2:
+输入: num1 = "123", num2 = "456"
+输出: "56088"
+
+提示：
+1 <= num1.length, num2.length <= 200
+num1 和 num2 只能由数字组成。
+num1 和 num2 都不包含任何前导零，除了数字0本身。
+```
+
+### 思路
+
+就是用的加法的思路，其实就是按照上面相加的思路。
+
+思路一，加法思路
+
+![image-20220201164957308](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201164957308.png)
+
+
+
+思路一的代码实现
+
+```java
+public String multiply1(String num1, String num2) {
+    // 如果任意数字为0 结果为0
+    if (num1.equals("0") || num2.equals("0")) return "0";
+    String res = "0";
+    int m = num1.length(), n = num2.length();
+    // 处理乘数的每一位
+    for (int i = n - 1; i >= 0; i--) {
+        // 新建临时字符串
+        StringBuilder curRes = new StringBuilder();
+        // 如果空出来了，需要补0
+        for (int j = n - 1; j > i; j--) curRes.append("0");
+        // 85*24的话就是从24的4开始处理
+        int y = num2.charAt(i) - '0';
+        int carry = 0;
+        for (int j = m - 1; j >= 0; j--) {
+            // 85*24的话就是从85的5开始处理
+            int x = num1.charAt(j) - '0';
+            // 获得乘积
+            int product = x * y + carry;
+            // 加入到结果
+            curRes.append(product % 10);
+            carry = product / 10;
+        }
+        if (carry != 0) curRes.append(carry);
+        // 走到这里其实可以获得当前的结果，和临时的结果。
+        // 当前的结果和临时的结果相加，在赋值给res
+        res = addStrings(res, curRes.reverse().toString());
+    }
+    return res;
+}
+
+// 字符串两数相加
+private String addStrings(String num1, String num2) {
+    StringBuilder res = new StringBuilder();
+    int i1 = num1.length() - 1, i2 = num2.length() - 1;
+    int carry = 0;
+    while (i1 >= 0 || i2 >= 0) {
+        int x = i1 >= 0 ? num1.charAt(i1) - '0' : 0;
+        int y = i2 >= 0 ? num2.charAt(i2) - '0' : 0;
+        int sum = x + y + carry;
+        res.append(sum % 10);
+        carry = sum / 10;
+
+        i1--;
+        i2--;
+    }
+    if (carry != 0) res.append(carry);
+    return res.reverse().toString();
+```
+
+
+
+思路二，相乘法。
+
+这个方法需要计算最小的情况。除了第一位是1，其他都是0
+
+![image-20220201165956489](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201165956489.png)
+
+这个是最大的情况，都是9
+
+![image-20220201170039971](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170039971.png)
+
+也就是说最大的长度就是m+n
+
+顺便又可以一个规律
+
+![image-20220201170214891](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170214891.png)
+
+左移最后可以得出2个规律
+
+- m*n的长度不会大于m+n
+- 个位数和进位数的规律，如图。
+
+![image-20220201170451036](/Users/chin/Library/Application Support/typora-user-images/image-20220201170451036.png![](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170214891.png)
+
+就这样一步步的向前相乘
+
+### 代码实现
+
+```java
+public String multiply(String num1, String num2) {
+        if (num1.equals("0") || num2.equals("0")) return "0";
+        int m = num1.length(), n = num2.length();
+        // 根据数学推理，长度分别为m和n的数组相乘
+        // 数组最大长度不会超过这个的
+        int[] res = new int[m + n];
+        for (int i = m - 1; i >= 0; i--) {
+            int x = num1.charAt(i) - '0';
+            for (int j = n - 1; j >= 0; j--) {
+                int y = num2.charAt(j) - '0';
+                int sum = res[i + j + 1] + x * y;
+                res[i + j + 1] = sum % 10;
+                res[i + j] += sum / 10;
+            }
+        }
+        // 这个时候res已经是一个数组了，但可能有0
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < res.length; i++) {
+            // 第一个位置如果是0一定是要舍弃
+            if (i == 0 && res[i] == 0) continue;
+            sb.append(res[i]);
+        }
+        return sb.toString();
+    }
+```
+
+## [204. 计数质数](https://leetcode-cn.com/problems/count-primes/)
+
+```java
+统计所有小于非负整数 n 的质数的数量。
+
+示例 1：
+输入：n = 10
+输出：4
+解释：小于 10 的质数一共有 4 个, 它们是 2, 3, 5, 7 。
+示例 2：
+输入：n = 0
+输出：0
+示例 3：
+输入：n = 1
+输出：0
+  
+提示：
+0 <= n <= 5 * 106
+```
+
+### 思路
+
+首先这一题最简单的就是每一个数字判断是不是为【质数】，是的count+1就可以了
+
+![image-20220203144757125](/Users/chin/Library/Application Support/typora-user-images/image-20220203144757125.png![](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170214891-20220203160745732.png)
+
+```java
+// 解法1 暴力解法 2个循环O(n^2)，数据量大不行
+    public int countPrimes1(int n) {
+        int res = 0;
+        for (int i = 2; i < n; i++) {
+            res += isPrime(n) ? 1 : 0;
+        }
+        return res;
+    }
+
+    // 判断一个数字x是不是指数
+    private boolean isPrime(int number) {
+        for (int i = 2; i < number; i++) {
+            if (number % i == 0) return false;
+        }
+        return true;
+    }
+```
+
+下面是一个埃拉托斯特尼筛法的思路 简称埃氏筛
+
+### 埃氏筛
+
+![](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170214891-20220203160745732-20220203160753707.png)
+
+这里的思路就是新建一个长度为n的数组。数组里面存储布尔值。
+
+如果2是质数，那么2×2，3×2，4×2...肯定不是质数。
+
+以此类推，这一题主要还是去看一下埃氏筛估计啥都了解了。
+
+```java
+// 埃氏筛 O(nlog(log n))
+public int countPrimes2(int n) {
+  int res = 0;
+  // 初始值全部都是false，也就是说初始值全部都是合数
+  boolean[] notPrimes = new boolean[n];
+  for (int i = 2; i < n; i++) {
+    // 这里第一次也就是notPrimes[2]的时候，肯定是false的，因为2是质数
+
+    // 如果这里notPrimes[i]是true 就是合数 那么直接跳过
+    if (notPrimes[i]) continue;
+    res++; // 走到这里肯定是质数 那么结果+1
+    // 如果 i 是质数，那么 2i、3i、4i.... 肯定不是质数
+    // 说明：这里 i 最好是从 i + i 开始，因为 i 有可能是质数
+    // 其实 i 从 i 开始也没啥问题，因为 i 在上面已经判断过了
+    // 但是，这样就违背了 notPrimes 数组的含义了，所以这里修改为 i + i
+    for (int j = i + i; j < n; j += i) {
+      notPrimes[j] = true; // ∵ 2是质数 ∴ 2*2,2*3,2*4...全部都是合数
+    }
+  }
+  return res;
+}
+```
+
+## [233. 数字 1 的个数](https://leetcode-cn.com/problems/number-of-digit-one/)
+
+```
+给定一个整数 n，计算所有小于等于 n 的非负整数中数字 1 出现的个数。
+
+示例 1：
+输入：n = 13
+输出：6
+示例 2：
+输入：n = 0
+输出：0
+ 
+提示：
+0 <= n <= 109
+```
+
+这一题的意思就是说，找出现1的个数比如下面
+
+![image-20220203153007996](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220203153007996.png)
+
+#### 思路
+
+这一题首先是数据量比较大，肯定是不能用暴力解法的。当然暴力解法能写出来也可以了。
+
+```java
+class Solution {
+    public int countDigitOne(int n) {
+        int res = 0;
+        // 这里要从1开始 因为根据题意 就是1开始
+        for (int i = 1; i <= n; i++) {
+            // 数字 → 字符
+            String s = String.valueOf(i);
+            int oneRes = 0; // 临时计算每一个字符串有没有
+            // 字符 → 字符串数组
+            for (char c : s.toCharArray()) {
+                // 是否为1
+                if (c == '1') oneRes++;
+            }
+            res += oneRes;
+        }
+        return res;
+    }
+}
+```
+
+所以这一题的结论就是使用数学推理
+
+![image-20220203154442902](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220203154442902.png)
+
+![image-20220203154548390](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220203154548390.png)
+
+### 代码实现
+
+```java
+// 数学推算 太难 不看 复杂度：O(log n)
+public int countDigitOne(int n) {
+  int res = 0;
+  for (long i = 1; i <= n; i *= 10) {
+    // i 应该是长整型，要不然会溢出
+    long divider = i * 10;
+    // (n/10)*1 + min(max((n%10 - 1 + 1), 0), 1)
+    // (n/100)*10 + min(max((n%100 - 10 + 1), 0), 10)
+    // (n/1000)*100 + min(max((n%1000 - 100 + 1), 0), 100)
+    res += (n / divider) * i + Math.min(Math.max(n % divider - i + 1, 0L), i);
+  }
+  return res;
+}
+```
+
+## [1232. 缀点成线](https://leetcode-cn.com/problems/check-if-it-is-a-straight-line/)
+
+```
+给定一个数组 coordinates ，其中 coordinates[i] = [x, y] ， [x, y] 表示横坐标为 x、纵坐标为 y 的点。请你来判断，这些点是否在该坐标系中属于同一条直线上。
+输入：coordinates = [[1,1],[2,2],[3,4],[4,5],[5,6],[7,7]]
+输出：false
+
+提示：
+2 <= coordinates.length <= 1000
+coordinates[i].length == 2
+-10^4 <= coordinates[i][0], coordinates[i][1] <= 10^4
+coordinates 中不含重复的点
+
+```
+
+### 思路
+
+其实就是算斜率，算出前2个的斜率，从第3个开始如果不符合这个斜率公式了，就out！
+
+![image-20220203155547314](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220203155547314.png)
+
+下面直接写代码就可以了，不是特别难！
+
+需要注意的就是**除法的问题**  一样的
+
+```
+ deltaY / deltaX == deltaYi / deltaXi
+ deltaY * deltaXi != deltaX * deltaYi
+```
+
+
+
+### 代码实现
+
+```java
+class Solution {
+    public boolean checkStraightLine(int[][] coordinates) {
+        // 这里其实就是点了4个点 这样能计算斜率
+        int x0 = coordinates[0][0];
+        int y0 = coordinates[0][1];
+        int deltaY = coordinates[1][1] - y0;
+        int deltaX = coordinates[1][0] - x0;
+        for (int i = 2; i < coordinates.length; i++) {
+            int deltaYi = coordinates[i][1] - y0;
+            int deltaXi = coordinates[i][0] - x0;
+            // 这里其实有个巧 因为计算斜率用的除法，但是这样会遇到整除除不尽 产生误差
+            // 所以除法，改成交叉乘法
+            // deltaY / deltaX == deltaYi / deltaXi
+            // 斜率不对了 就直接false
+            if (deltaY * deltaXi != deltaX * deltaYi) return false;
+        }
+        return true;
+    }
+}
 ```
 
