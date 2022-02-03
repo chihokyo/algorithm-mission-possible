@@ -1,4 +1,4 @@
-#### [204. 计数质数](https://leetcode-cn.com/problems/count-primes/)算法日记
+# 算法日记
 
 数学开始咯！！字符串的主要题目有
 
