@@ -109,6 +109,20 @@ class Solution {
 }
 ```
 
+### 重要补充
+
+这里的思路1和思路2，要仔细看看有什么不同。
+
+思路1是在原先的基础上，循环不变量，在一个区间内再次进行搜索。感觉有点像递归？
+
+思路2 的意思是一种范围缩小。不断进行范围缩小。最后只会剩下一个元素。
+
+这俩在写代码的时候主要有以下几个不一样的地方！你会发现思路2里不进行查找，只会进行比较！！！
+
+-  `while (left <= right) {}` 最后只剩下一个，一直递归到最后
+-  `while (left < right) {}` 这里既然是取得范围，相等的话就不是一个范围了
+- `if (nums[left] == target) return left;`这个在思路2会进行判断，因为排除了所有的不可能，最后只剩下1个！！只要去看看这1个是不是就可以了。
+
 ## [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode-cn.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 ```
@@ -289,4 +303,194 @@ class Solution {
     }
 }
 ```
+
+## [35. 搜索插入位置](https://leetcode-cn.com/problems/search-insert-position/)
+
+```
+给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
+请必须使用时间复杂度为 O(log n) 的算法。
+
+示例 1:
+输入: nums = [1,3,5,6], target = 5
+输出: 2
+示例 2:
+输入: nums = [1,3,5,6], target = 2
+输出: 1
+示例 3:
+输入: nums = [1,3,5,6], target = 7
+输出: 4
+ 
+提示:
+1 <= nums.length <= 104
+-104 <= nums[i] <= 104
+nums 为 无重复元素 的 升序 排列数组
+-104 <= target <= 104
+```
+
+### 思路1
+
+- 最原始的解法就是线性扫描（复杂度n 不符合题意）
+
+- 扫描到==target的就返回当前index的前一个index
+- 如果比最小的都小，那么就是0
+- 如果比最大的都大，那么就是数组长度
+
+线性扫描的思路，复杂度n
+
+```java
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        // 从前到后开始遍历
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] >= target) return i; 
+        }
+        // [1,2,3,4] target:5 这种情况
+        return nums.length;
+    }
+}
+```
+
+### 思路2
+
+这一题本质就是找到第一个大于等于 target 的元素 index
+
+- 现在循环体内找符合条件的（正常的二分查找
+- 看看前面的是否是小于，如果小就是直接返回
+- 如果前面还是大的，说明需要重新进行再来一遍
+
+```java
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        // 比最后一个最大的还要大，直接发个到最后
+        if (target > nums[nums.length - 1]) return nums.length;
+        int left = 0, right = nums.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (target <= nums[mid]) {
+                // 小于等于 说明可能是答案，但是还要看前一个是不是小
+                // 小才是答案
+                // mid - 1 有可能过界 所以考虑一下
+                if (mid == 0 || nums[mid - 1] < target) return mid;
+                // 如果前面还要大，那就继续缩小右边
+                else right = mid - 1;
+            } else {
+                // 这里说明 target>nums[mid] 肯定
+                left = mid + 1;
+            }
+        }
+        // 没有直接返回负一
+        return -1;
+    }
+}
+```
+
+### 思路3
+
+不断缩小范围
+
+```java
+class Solution {
+    public int searchInsert(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length - 1;
+        while(left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] > target) {
+              // mid的值更大 缩小右边
+                right = mid - 1;
+            } else if (nums[mid] < target) {
+              // mid的值更小 缩小左边
+                left = mid + 1;
+            } else {
+                return mid;
+            }
+        }
+        return left;
+    }
+}
+```
+
+## [278. 第一个错误的版本](https://leetcode-cn.com/problems/first-bad-version/)
+
+```
+你是产品经理，目前正在带领一个团队开发新的产品。不幸的是，你的产品的最新版本没有通过质量检测。由于每个版本都是基于之前的版本开发的，所以错误的版本之后的所有版本都是错的。
+假设你有 n 个版本 [1, 2, ..., n]，你想找出导致之后所有版本出错的第一个错误的版本。
+你可以通过调用 bool isBadVersion(version) 接口来判断版本号 version 是否在单元测试中出错。实现一个函数来查找第一个错误的版本。你应该尽量减少对调用 API 的次数。
+
+示例 1：
+输入：n = 5, bad = 4
+输出：4
+解释：
+调用 isBadVersion(3) -> false 
+调用 isBadVersion(5) -> true 
+调用 isBadVersion(4) -> true
+所以，4 是第一个错误的版本。
+示例 2：
+输入：n = 1, bad = 1
+输出：1
+
+提示：
+1 <= bad <= n <= 231 - 1
+```
+
+### 思路1
+
+这一题的本质其实就是 **在一个升序的数组中，找到第一个等于6的位置。**
+
+首先是一个在循环体内找的方法。
+
+```java
+/* The isBadVersion API is defined in the parent class VersionControl.
+      boolean isBadVersion(int version); */
+
+public class Solution extends VersionControl {
+    public int firstBadVersion(int n) {
+        int left = 1, right = n;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            // 如果mid这个是坏版本，那么就一定是这个吗
+            // 不一定，因为前面可能还是，所以还要判断一下
+            if (isBadVersion(mid)) {
+                if (mid == 1 || !isBadVersion(mid - 1)) return mid;
+                // 如果还是坏版本，就继续缩小
+                else right = mid - 1;
+            } else {
+                // 到这里说明肯定不是坏版本，需要向右找
+                left = mid + 1;
+            }
+        } 
+        return -1;
+    }
+}
+```
+
+### 思路2
+
+排除不必要的区间
+
+```java
+/* The isBadVersion API is defined in the parent class VersionControl.
+      boolean isBadVersion(int version); */
+
+public class Solution extends VersionControl {
+    public int firstBadVersion(int n) {
+        int left = 1, right = n;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            // 坏版本，说明自己是or自己前面也有可能是
+            if (isBadVersion(mid)) {
+                right = mid;
+            } else {
+                // 那肯定是前面了
+                left = mid + 1;
+            }
+        }
+        // 走完了还不是，就最后了。
+      	// return right;也是对的
+        return left;
+    }
+}
+```
+
+
 
