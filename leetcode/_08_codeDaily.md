@@ -492,5 +492,279 @@ public class Solution extends VersionControl {
 }
 ```
 
+## [33. 搜索旋转排序数组](https://leetcode-cn.com/problems/search-in-rotated-sorted-array/)
 
+```
+整数数组 nums 按升序排列，数组中的值 互不相同 。
+
+在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
+给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。
+
+示例 1：
+输入：nums = [4,5,6,7,0,1,2], target = 0
+输出：4
+示例 2：
+输入：nums = [4,5,6,7,0,1,2], target = 3
+输出：-1
+示例 3：
+输入：nums = [1], target = 0
+输出：-1
+
+提示：
+1 <= nums.length <= 5000
+-10^4 <= nums[i] <= 10^4
+nums 中的每个值都 独一无二
+题目数据保证 nums 在预先未知的某个下标上进行了旋转
+-10^4 <= target <= 10^4
+```
+
+### 思路
+
+首先读懂题目很重要，这一题的题意没读懂的话就不行
+
+- 数组整体是部分有序的，前面部分有序，后面也部分有序
+- 前面的有序数组肯定是大于后面的有序数组的，（因为本来都是有序的，只是旋转过去的。
+- `nums[left] <= nuts[mid]` 前面是有序的
+- `nums[left] > nuts[mid]` 后面是有序的
+
+![image-20220410220525044](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220410220525044.png)
+
+首先看第一种情况，也就是在
+
+`nums[left] <= nums[mid]`的时候，那么查找元素的过程
+
+![image-20220410221701919](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220410221701919.png)
+
+那么接下来在看另一种情况
+
+`nums[left] > nums[mid]` 的时候，查找4和13的情况
+
+![image-20220410221955689](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220410221955689.png)
+
+也就当旋转数组，肯定是有一段区间是有序的。那么就先看是不是在有序的那段的，如果不是，就是在另外一边。
+
+将数组一分为二，其中一定有一个是有序的，另一个可能是有序，也能是部分有序。此时有序部分用二分法查找。无序部分再一分为二，其中一个一定有序，另一个可能有序，可能无序。就这样循环
+
+### 代码实现
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            // 找到了 直接就可以返回
+            if (target == nums[mid]) return mid;
+            // 这样说明左边肯定是有序的，left mid 范围内肯定有序
+            if (nums[left] <= nums[mid]) {
+                // 左边有序的话，就要看看target在不在[left,mid]之间
+                // 等于nums[mid]就不用判断了，因为已经判断了
+                if (target >= nums[left] && target < nums[mid]) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            } else {
+                // 右边，mid right 范围内肯定有序
+                if (target > nums[mid] && target <= nums[right]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+        return -1;
+    }
+}
+```
+
+这段代码最重要的就是两个判断内部还分别判断了。
+
+- `if (nums[left] <= nums[mid])`这个是为了判断到底哪部分是有序的，true就是左边有序
+  - 如果是true，说明左边有序，然后看看继续内部在看看target在哪里
+  - `if (target >= nums[left] && target < nums[mid])` 大于等于左，小于右，肯定在有序区域，然后进行判断，接下来就是二分法基本操作了。
+- `if (nums[left] <= nums[mid])`这个是为了判断到底哪部分是有序的，false就是右边有序
+  - 然后接下来也是二分法基本操作
+
+## [153. 寻找旋转排序数组中的最小值](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array/)
+
+```
+已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,2,4,5,6,7] 在变化后可能得到：
+若旋转 4 次，则可以得到 [4,5,6,7,0,1,2]
+若旋转 7 次，则可以得到 [0,1,2,4,5,6,7]
+注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+
+给你一个元素值 互不相同 的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素 。
+你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。
+
+示例 1：
+输入：nums = [3,4,5,1,2]
+输出：1
+解释：原数组为 [1,2,3,4,5] ，旋转 3 次得到输入数组。
+示例 2：
+输入：nums = [4,5,6,7,0,1,2]
+输出：0
+解释：原数组为 [0,1,2,4,5,6,7] ，旋转 4 次得到输入数组。
+示例 3：
+输入：nums = [11,13,15,17]
+输出：11
+解释：原数组为 [11,13,15,17] ，旋转 4 次得到输入数组。
+ 
+提示：
+n == nums.length
+1 <= n <= 5000
+-5000 <= nums[i] <= 5000
+nums 中的所有整数 互不相同
+nums 原来是一个升序排序的数组，并进行了 1 至 n 次旋转
+```
+
+### 思路1
+
+暴力解法
+
+- 默认第一个就是最小值，然后一个个对比。遇到更小的就退出。
+
+```java
+/**
+ * 暴力解法 遍历数组 找到最小值
+ * 时间复杂度 O(n)
+ * 空间复杂度 O(1)
+ *
+ * @param nums 数组
+ * @return int 最小值
+ */
+public int findMin(int[] nums) {
+    int minVal = nums[0];
+    for (int i = 1; i < nums.length; i++) {
+        // 找到小的就交换
+        minVal = Math.min(minVal, nums[i]);
+    }
+    return minVal;
+}
+```
+
+暴力解法2 提前终止（速度并没有快
+
+```java
+/**
+ * 暴力解法 遍历数组 提前终止，只要找到前一位小的就是最小
+ * 时间复杂度 O(n)
+ * 空间复杂度 O(1)
+ *
+ * @param nums 数组
+ * @return int 最小值
+ */
+public int findMin2(int[] nums) {
+    for (int i = 1; i < nums.length; i++) {
+        // 因为按照厂里后一个应该比前一个大
+        // 如果后一个比前一个小了，说明是拐点
+        if (nums[i] < nums[i - 1]) {
+            return nums[i];
+        }
+    }
+    // 一直都是大的，说明最小的就是第一个
+    return nums[0];
+}
+```
+
+### 思路2 二分法
+
+主要利用的既然是升序，那么就对比中间值mid和最右right，按理说升序mid应该小于right，如果大于了，说明最小值（旋转拐点） 就在mid和right之间，然后就可以用二分法找到了。
+
+```java
+class Solution {
+    public int findMin(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            // 本来升序，那么mid对应的值，肯定是大于right
+            // 小于的话，说明这里出现了一个旋转拐点
+            if (nums[mid] > nums[right]) {
+                left = mid + 1;
+            } else {
+                // 说明答案有可能是mid和mid之前的
+                right = mid;
+            }
+        }
+        // 只剩下一个最后一个，肯定就是最小的了
+        return nums[left];
+    }
+}
+```
+
+## [154. 寻找旋转排序数组中的最小值 II](https://leetcode-cn.com/problems/find-minimum-in-rotated-sorted-array-ii/)
+
+```
+已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,4,4,5,6,7] 在变化后可能得到：
+若旋转 4 次，则可以得到 [4,5,6,7,0,1,4]
+若旋转 7 次，则可以得到 [0,1,4,4,5,6,7]
+注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+
+给你一个可能存在 重复 元素值的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素 。
+
+你必须尽可能减少整个过程的操作步骤。
+
+示例 1：
+输入：nums = [1,3,5]
+输出：1
+示例 2：
+输入：nums = [2,2,2,0,1]
+输出：0
+
+提示：
+n == nums.length
+1 <= n <= 5000
+-5000 <= nums[i] <= 5000
+nums 原来是一个升序排序的数组，并进行了 1 至 n 次旋转
+
+进阶：这道题与 寻找旋转排序数组中的最小值 类似，但 nums 可能包含重复元素。允许重复会影响算法的时间复杂度吗？会如何影响，为什么？
+```
+
+这一题和153 最大的区别就是，有重复值！！
+
+```
+4 4 0 4 4 4 4 4
+这种情况下，如果还是按照上面的二分法，你会发现你会错过最小值！
+```
+
+### 思路
+
+其实只是多考虑了一个情况
+
+`nums[mid] == nums[right] ` 这种情况下必须一个个向前看
+
+就是上面本来是使用的这个
+
+```java
+if (nums[mid] > nums[right]) {
+  left = mid + 1;
+} else {
+  // 这里包含两种情况
+  // nums[mid] < nums[right] → 这里OK
+  // nums[mid] == nums[right] →  等于的情况下 不可以直接移动，还要看前一个是否小于，1个个移动
+  right = mid;
+}
+```
+
+### 代码实现
+
+```java
+class Solution {
+    public int findMin(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] > nums[right]) {
+                left = mid + 1;
+            } else if (nums[mid] < nums[right]) {
+                right = mid;
+            } else {
+                // 多了这一种情况来判断重复，就是一步步向前比较，而不是直接移动到right
+                right--;
+            }
+        }
+        return nums[left];
+    }
+}
+```
 
