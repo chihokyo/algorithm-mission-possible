@@ -2,6 +2,233 @@
 
 ## 二分查找相关
 
+### 最基本的查找 → 一般写法
+
+当left 大于 right 证明中间没有任何未处理的数据，这才是跳出。
+
+也就是说判断是 `while (left <= right) {计算逻辑}`
+
+```java
+// 时间复杂度：O(logn)
+// 空间复杂度：O(1)
+public boolean contains(int[] nums, int target) {
+    if (nums == null || nums.length == 0) return false;
+
+    int left = 0;
+    int right = nums.length - 1;
+    while (left <= right) {
+        // bug ：left + right 会溢出
+        // 整数的最大值：2^31 - 1 = 2147483647
+        int mid = left + (right -  left) / 2;
+        // >>> 无符号右移
+        // int mid = (left + right) >>> 1;
+        if (target == nums[mid]) {
+            return true;
+        } else if (target < nums[mid]) {
+            right = mid - 1; // 下一次搜索区间：[left...mid - 1]
+        } else { // target > nums[mid]
+            left = mid + 1; // 下一次搜索区间：[mid + 1...right]
+        }
+    }
+    // left > right ：没有元素
+    return false;
+}
+```
+
+### 最基本的查找 → 递归写法
+
+```java
+// 时间复杂度：O(logn)
+// 空间复杂度：O(logn)
+public boolean containsR(int[] nums, int target) {
+    if (nums == null || nums.length == 0) return false;
+    return contains(nums, 0, nums.length - 1, target);
+}
+
+private boolean contains(int[] nums, int left, int right, int target) {
+    if (left > right) return false;
+
+    int mid = left + (right - left) / 2;
+    if (nums[mid] == target) return true;
+
+    if (target < nums[mid]) {
+        return contains(nums, left, mid - 1, target);
+    } else {
+        return contains(nums, mid + 1, right, target);
+    }
+}
+```
+
+以下的问题，最好是先看过704这一道leetcode的题目再来解决。
+
+### 问题1：关于整型溢出的问题
+
+因为left和right都属于整型，会有可能溢出的问题。所以需要解决
+
+解决方法1，使用right-left，并且使用了位运算，右移1位就是除以2，但是因为位运算的优先级比+号低，所以要括起来，但是 java 内部现在两个性能都一样的，/ 2 最后
+
+- `int mid = left + ((right - left) >> 1)`
+- `int mid = left + ((right - left) >> 1)`
+- int mid =  (left + right) >>> 1` **无符号右移**
+
+### 问题2：向上取整问题
+
+其实二分搜索，有个向上取整也有向下取整。至于用哪一个其实是跟你的写法有关的。
+
+[一篇我觉得关于二分法的一些细节说的还可以的文章](https://www.jianshu.com/p/b225949678e0)
+
+> **尝试排除左区间的写法：当搜索区间只剩下两个元素时，应该采用向上取整。**
+>
+> **「反证法」**：因为![[left , right]](https://math.jianshu.com/math?formula=%5Bleft%20%2C%20right%5D)区间被划分为：![[left , mid - 1]](https://math.jianshu.com/math?formula=%5Bleft%20%2C%20mid%20-%201%5D) 和 ![[mid , right]](https://math.jianshu.com/math?formula=%5Bmid%20%2C%20right%5D)，如果选择向下取整（取前一个中位数，mid 的值等于 left），那么在左区间 **无法** 排除时，会进入`left = mid`的分支。此时，left 和 right 的值没有改变，出现区间不会缩小的情况，进入死循环。
+>
+> **尝试排除右区间的写法：当搜索区间只剩下两个元素时，应该采用向下取整。**
+>
+> **「反证法」**：因为![[left , right]](https://math.jianshu.com/math?formula=%5Bleft%20%2C%20right%5D)区间被划分为：![[left , mid]](https://math.jianshu.com/math?formula=%5Bleft%20%2C%20mid%5D) 和 ![[mid + 1 , right]](https://math.jianshu.com/math?formula=%5Bmid%20%2B%201%20%2C%20right%5D)，如果选择向上取整（取后一个中位数，mid 的值等于 right），那么在右区间 **无法** 排除时，会进入`right = mid`的分支。此时，left 和 right 的值没有改变，出现区间不会缩小的情况，进入死循环。
+
+其实上面的这个取整，大部分是跟排除区间的那种二分法写法有关。
+
+![image-20220411230204425](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220411230204425.png)
+
+###  问题3：关于 while(left <= right)
+
+其实这一个是根据你写的算法界限有关系的
+
+```java
+// ① 区间内查找目标值的二分法
+int left = 0, right = nums.length - 1;
+while (left <= right) // 当left > right才会跳出，保证中间没有任何数值了
+  
+int left = 0, right = nums.length;
+while (left < right) // 因为你永远取不到right 所以当大于才能跳出来
+  
+// ② 排除区间的二分法
+int left = 0, right = nums.length - 1;
+while (left < right) // 当left == right才会跳出 这样最后还会剩下一个值
+return if (nums[left] == left) left ? : -1;
+```
+
+## 查找第一个等于目标元素的下标（有重复元素）
+
+#### 思路
+
+其实主要是多了一个判断
+
+- 前面的值到底是不是目标值，如果是目标值的话就移动right
+- ⚠️ 同时一定要注意，特殊情况，就是如果第一个就是，那么你的代码一定要判断！
+
+![image-20220412224743783](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220412224743783.png)
+
+下面直接代码实现
+
+```java
+public int firstTarget(int[] nums, int target) {
+    if (nums == null || nums.length == 0) return -1;
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (target == nums[mid]) {
+            // 这里很重要 判断是否为第1个 or 是否前一个不等于
+            // 不等于 或者 第一个的话 那么这个值就是答案
+            if (mid == 0 || nums[mid - 1] != target) return mid;
+                // 否则就继续缩小范围
+            else right = mid - 1;
+        } else if (target < nums[mid]) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return -1;
+}
+```
+
+> 代码难点一 就是判断前一个
+>
+> 代码难点二 `mid == 0` 这个case很有可能忘记
+
+## 查找第一个大于等于目标元素的下标
+
+### 思路
+
+这里最重要的在大于和等于的情况下，都要进行一样的逻辑判断。来看前一个是不是！
+
+![image-20220412231054204](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220412231054204.png)
+
+### 代码实现
+
+```java
+public int firstGETarget(int[] nums, int target) {
+    if (nums == null || nums.length == 0) return -1;
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (target == nums[mid]) {
+            // 等于的情况下 看一个是否也符合条件 继续大于的话就移动right
+            // 否则就是答案
+            if (mid == 0 || nums[mid - 1] < target) return mid;
+            else return mid - 1;
+        } else if (target < nums[mid]) {
+            // 等于的情况下 看一个是否也符合条件 继续大于的话就移动right
+            // 否则就是答案
+            if (mid == 0 || nums[mid - 1] < target) return mid;
+            else return mid - 1;
+        } else {
+            // target > nums[mid]
+            left = mid + 1;
+        }
+    }
+    return -1;
+}
+// 由于上面 == 和 < 逻辑是一样的
+while (left <= right) {
+    int mid = left + (right - left) / 2;
+    if (target <= nums[mid]) {
+        // 等于的情况下 看一个是否也符合条件 继续大于的话就移动right
+        // 否则就是答案
+        if (mid == 0 || nums[mid - 1] < target) return mid;
+        else return mid - 1;
+    } else {
+        // target > nums[mid]
+        left = mid + 1;
+    }
+}
+```
+
+## 查找最后一个等于目标元素的下标
+
+### 思路
+
+其实和找第一个等于目标元素的下标是一样的感觉，只不过要注意
+
+- 当找到之后要判断下一个是不是也相等，如果也相等，需要继续右移
+- ⚠️要注意如果`nums[nums.length -1]`的情况下别越界了
+
+![1](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220412233732983.png)
+
+### 代码实现
+
+```java
+public int lastTarget(int[] nums, int target) {
+    if (nums == null || nums.length == 0) return -1;
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (target == nums[mid]) {
+            // 如果相等的话，要看后一个是否也相等
+            // 相等的话要右移缩小范围，不等的话直接就是答案
+            // 要注意如果mid已经是最后一个元素的情况下 直接也是答案
+            if (mid == nums.length - 1 || nums[mid + 1] != target) return mid;
+            else left = mid + 1;
+        } else if (target < nums[mid]) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return -1;
+}
+```
+
 ## [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
 
 ```
