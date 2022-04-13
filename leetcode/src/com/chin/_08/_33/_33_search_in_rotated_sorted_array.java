@@ -1,6 +1,7 @@
 package com.chin._08._33;
 
 public class _33_search_in_rotated_sorted_array {
+
     public int search(int[] nums, int target) {
         int left = 0, right = nums.length - 1;
         while (left <= right) {

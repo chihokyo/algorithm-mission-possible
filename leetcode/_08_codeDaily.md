@@ -229,6 +229,33 @@ public int lastTarget(int[] nums, int target) {
 }
 ```
 
+## 最后一个小于等于目标元素的下标
+
+### 思路
+
+基本上就是和前面一样直接上代码算了
+
+### 代码实现
+
+```java
+public int lastLeTarget(int[] nums, int target) {
+    if (nums == null || nums.length == 0) return -1;
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (target >= nums[mid]) {
+            if (mid == nums.length - 1 || nums[mid + 1] > target) return mid;
+            else left = mid + 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return -1;
+}
+```
+
+
+
 ## [704. 二分查找](https://leetcode-cn.com/problems/binary-search/)
 
 ```
@@ -751,8 +778,8 @@ nums 中的每个值都 独一无二
 
 - 数组整体是部分有序的，前面部分有序，后面也部分有序
 - 前面的有序数组肯定是大于后面的有序数组的，（因为本来都是有序的，只是旋转过去的。
-- `nums[left] <= nuts[mid]` 前面是有序的
-- `nums[left] > nuts[mid]` 后面是有序的
+- `nums[left] <= nums[mid]` 前面是有序的
+- `nums[left] > nums[mid]` 后面是有序的
 
 ![image-20220410220525044](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220410220525044.png)
 
@@ -995,3 +1022,243 @@ class Solution {
 }
 ```
 
+## [852. 山脉数组的峰顶索引](https://leetcode-cn.com/problems/peak-index-in-a-mountain-array/)
+
+```
+符合下列属性的数组 arr 称为 山脉数组 ：
+arr.length >= 3
+存在 i（0 < i < arr.length - 1）使得：
+arr[0] < arr[1] < ... arr[i-1] < arr[i]
+arr[i] > arr[i+1] > ... > arr[arr.length - 1]
+给你由整数组成的山脉数组 arr ，返回任何满足 arr[0] < arr[1] < ... arr[i - 1] < arr[i] > arr[i + 1] > ... > arr[arr.length - 1] 的下标 i 。
+ 
+
+示例 1：
+输入：arr = [0,1,0]
+输出：1
+示例 2：
+输入：arr = [0,2,1,0]
+输出：1
+示例 3：
+输入：arr = [0,10,5,2]
+输出：1
+示例 4：
+输入：arr = [3,4,5,1]
+输出：2
+示例 5：
+输入：arr = [24,69,100,99,79,78,67,36,26,19]
+输出：2
+ 
+提示：
+3 <= arr.length <= 104
+0 <= arr[i] <= 106
+题目数据保证 arr 是一个山脉数组
+
+进阶：很容易想到时间复杂度 O(n) 的解决方案，你可以设计一个 O(log(n)) 的解决方案吗？
+```
+
+### 
+
+什么是山脉数组？
+
+- 数组长度大于3
+- [1,2,3,7,4,2] 依次递增，然后到顶，依次递减。这样就是山脉数组。
+
+### 思路1 暴力
+
+首先这一题是可以暴力解法的，那就是遍历。
+
+![image-20220413230815919](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220413230815919.png)
+
+```java
+/**
+ * 暴力解法
+ *
+ * @param arr 数组
+ * @return int 峰顶
+ */
+public int peakIndexInMountainArray(int[] arr) {
+    // 遍历起来
+    for (int i = 0; i < arr.length - 1; i++) {
+        // 一直向上，前一个大于后一个，终止
+        if (arr[i] > arr[i + 1]) return i;
+    }
+    // 一直向上的话，那么峰顶就是最后一个index
+    return arr.length - 1;
+}
+```
+
+### 思路2 二分查找
+
+- 其实本质就是`nums[mid]和nums[mid+1]`进行比较
+
+![image-20220413231858986](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220413231858986.png)
+
+```java
+/**
+ * 二分查找
+ *
+ * @param arr 数组
+ * @return int 峰顶
+ */
+public int peakIndexInMountainArray2(int[] arr) {
+    int left = 0, right = arr.length - 1;
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        // 中间值 < 中间值+1 说明在走上坡路 左边肯定都不是 排除
+        if (arr[mid] < arr[mid + 1]) {
+            left = mid + 1;
+        } else {
+            // 已经在走下坡路，自身可能是峰顶
+            right = mid;
+        }
+    }
+    // 最后只剩下一个，那肯定是的 right也对
+    return left;
+}
+```
+
+## [1095. 山脉数组中查找目标值](https://leetcode-cn.com/problems/find-in-mountain-array/)
+
+```
+（这是一个 交互式问题 ）
+给你一个 山脉数组 mountainArr，请你返回能够使得 mountainArr.get(index) 等于 target 最小 的下标 index 值。
+如果不存在这样的下标 index，就请返回 -1。
+
+何为山脉数组？如果数组 A 是一个山脉数组的话，那它满足如下条件：
+
+首先，A.length >= 3
+其次，在 0 < i < A.length - 1 条件下，存在 i 使得：
+A[0] < A[1] < ... A[i-1] < A[i]
+A[i] > A[i+1] > ... > A[A.length - 1]
+
+你将 不能直接访问该山脉数组，必须通过 MountainArray 接口来获取数据：
+MountainArray.get(k) - 会返回数组中索引为k 的元素（下标从 0 开始）
+MountainArray.length() - 会返回该数组的长度
+
+注意：
+对 MountainArray.get 发起超过 100 次调用的提交将被视为错误答案。此外，任何试图规避判题系统的解决方案都将会导致比赛资格被取消。
+
+为了帮助大家更好地理解交互式问题，我们准备了一个样例 “答案”：https://leetcode-cn.com/playground/RKhe3ave，请注意这 不是一个正确答案。
+示例 1：
+输入：array = [1,2,3,4,5,3,1], target = 3
+输出：2
+解释：3 在数组中出现了两次，下标分别为 2 和 5，我们返回最小的下标 2。
+示例 2：
+输入：array = [0,1,2,4,2,1], target = 3
+输出：-1
+解释：3 在数组中没有出现，返回 -1。
+
+提示：
+3 <= mountain_arr.length() <= 10000
+0 <= target <= 10^9
+0 <= mountain_arr.get(index) <= 10^9
+```
+
+这一题首先要读懂题目
+
+![image-20220413232647422](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220413232647422.png)
+
+其实这一题暴力遍历也可以，但还是用二分。
+
+### 思路 二分查找
+
+- 找到哪里到哪里升序，哪里是哪里是降序。找到峰顶。
+- 然后先对前面进行二分，找不到，在找后面二分
+
+![image-20220413232937271](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220413232937271.png)
+
+```java
+// 先写个框架
+class Solution {
+    public int findInMountainArray(int target, MountainArray mountainArr) {
+        // 1. 找到峰顶的index
+        int peakIndex = searchPeakIndex(mountainArr);
+        // 2. 先对前半部分使用二分法进行查找
+        int index = binarySearchFrontPart(mountainArr, 0, peakIndex, target);
+        if (index != -1) {
+            return index;
+        }
+        // 3. 找不到再对后半部分进行查找
+        return binarySearchLatterPart(mountainArr, peakIndex, mountainArr.length() - 1, target);
+    }
+}
+```
+
+然后下面是完整的代码
+
+```java
+/**
+ * // This is MountainArray's API interface.
+ * // You should not implement it, or speculate about its implementation
+ * interface MountainArray {
+ *     public int get(int index) {}
+ *     public int length() {}
+ * }
+ */
+ 
+class Solution {
+
+    public int findInMountainArray(int target, MountainArray mountainArr) {
+        // 1. 找到峰顶的index
+        int peakIndex = searchPeakIndex(mountainArr);
+        // 2. 先对前半部分使用二分法进行查找
+        int index = binarySearchFrontPart(mountainArr, 0, peakIndex, target);
+        if (index != -1) {
+            return index;
+        }
+        // 3. 找不到再对后半部分进行查找
+        return binarySearchLatterPart(mountainArr, peakIndex, mountainArr.length() - 1, target);
+    }
+
+    // 找到峰顶的index
+    private int searchPeakIndex(MountainArray mountainArr){
+        int left = 0 ,right = mountainArr.length() - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (mountainArr.get(mid) < mountainArr.get(mid + 1)) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+
+    // 先对前半部分使用二分法进行查找
+    private int binarySearchFrontPart(MountainArray mountainArr, int left, int peakIndex, int target) {
+        while (left < peakIndex) {
+            int mid = left + (peakIndex - left) / 2;
+            if (target > mountainArr.get(mid)) {
+                left = mid + 1;
+            } else {
+                peakIndex = mid;
+            }
+        }
+
+        if (mountainArr.get(left) == target) return left;
+        return -1;
+    }
+
+    private int binarySearchLatterPart(MountainArray mountainArr, int peakIndex, int right, int target) {
+        while (peakIndex < right) {
+            int mid = peakIndex + (right - peakIndex) / 2;
+            // 这里第一次写错了，因为忘记后面的是降序的！！！一定不能记错
+            // if (target > mountainArr.get(mid))
+            if (target < mountainArr.get(mid)) {
+                peakIndex = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        if (mountainArr.get(peakIndex) == target) return peakIndex;
+        return -1;
+    }
+}
+```
+
+写这个代码有2个需要注意的地方
+
+- 升序和降序要分别进行写代码。
+- 前半部分是升序，可以按照以往的二分进行写。但是后面是降序，容易把大小号搞混。
