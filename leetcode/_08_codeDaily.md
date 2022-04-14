@@ -1079,6 +1079,7 @@ arr[i] > arr[i+1] > ... > arr[arr.length - 1]
  */
 public int peakIndexInMountainArray(int[] arr) {
     // 遍历起来
+    // 注意这里是arr.length - 1 而不是 arr.length 因为最后一个会越界 而且没必要比较
     for (int i = 0; i < arr.length - 1; i++) {
         // 一直向上，前一个大于后一个，终止
         if (arr[i] > arr[i + 1]) return i;
@@ -1262,3 +1263,335 @@ class Solution {
 
 - 升序和降序要分别进行写代码。
 - 前半部分是升序，可以按照以往的二分进行写。但是后面是降序，容易把大小号搞混。
+
+## [162. 寻找峰值](https://leetcode-cn.com/problems/find-peak-element/)
+
+这一题和上面的 852 几乎一模一样，（其实就是一样）
+
+只是这一题的题目说，峰值可能有无数个，而852说峰值只有1个，但是这一题虽然有无数个，也只要求要了一个！
+
+```
+峰值元素是指其值严格大于左右相邻值的元素。
+给你一个整数数组 nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回 任何一个峰值 所在位置即可。
+你可以假设 nums[-1] = nums[n] = -∞ 。
+你必须实现时间复杂度为 O(log n) 的算法来解决此问题。
+
+示例 1：
+输入：nums = [1,2,3,1]
+输出：2
+解释：3 是峰值元素，你的函数应该返回其索引 2。
+示例 2：
+输入：nums = [1,2,1,3,5,6,4]
+输出：1 或 5 
+解释：你的函数可以返回索引 1，其峰值元素为 2；
+     或者返回索引 5， 其峰值元素为 6。
+ 
+提示：
+1 <= nums.length <= 1000
+-231 <= nums[i] <= 231 - 1
+对于所有有效的 i 都有 nums[i] != nums[i + 1]
+```
+
+### 思路1 暴力遍历
+
+```java
+class Solution {
+    public int findPeakElement(int[] nums) {
+      // 注意这里是 nums.length - 1
+        for (int i = 0; i < nums.length - 1; i++) {
+            if (nums[i] > nums[i + 1]) return i;
+        }
+        return nums.length - 1;
+    }
+}
+```
+
+### 思路2 二分查找
+
+```java
+class Solution {
+    public int findPeakElement(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            // 中间值和中间值后一个比较 前面更小 说明 答案在右边
+            if (nums[mid] < nums[mid + 1]) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left;
+    }
+}
+```
+
+## [74. 搜索二维矩阵](https://leetcode-cn.com/problems/search-a-2d-matrix/)
+
+```
+编写一个高效的算法来判断 m x n 矩阵中，是否存在一个目标值。该矩阵具有如下特性：
+每行中的整数从左到右按升序排列。
+每行的第一个整数大于前一行的最后一个整数。
+
+输入：matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
+输出：true
+输入：matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13
+输出：false
+ 
+提示：
+m == matrix.length
+n == matrix[i].length
+1 <= m, n <= 100
+-104 <= matrix[i][j], target <= 104
+```
+
+### 思路1 暴力
+
+```java
+class Solution {
+    // 遍历纯暴力
+    public boolean searchMatrix(int[][] matrix, int target) {
+        // 计算高度 也就是多少行
+        int y = matrix.length;
+        // 计算宽度，也就是多少列
+        int x = matrix[0].length;
+        for(int i = 0; i < y; i++) {
+            for(int j = 0; j < x; j++) {
+                if(matrix[i][j] == target) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+```
+
+### 思路2 二维 → 一维 → 二分
+
+![image-20220414134136979](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220414134136979.png)
+
+这里最难的是通过mid的值，计算出原来在二维数组的坐标。
+
+```
+mid = left + (right - left) / 2;
+坐标 = [mid / n][mid % n] 列取整 列取余
+比如11在一维数组里的index是5，
+那么在二维数组里是[5 / 4 = 1][5 % 4 = 1] = [1][1]
+```
+
+```java
+// 复杂度是 O(log(n))
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        int row = matrix.length;
+        int col = matrix[0].length;
+        int left = 0, right = row * col - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            // 这个最主要看列取整，列取余
+            int num = matrix[mid / col][mid % col];
+            if (target == num) return true;
+            else if (target > num) left = mid + 1;
+            else right = mid - 1;
+        }
+        return false;
+    }
+}
+```
+
+### 思路3 缩小范围
+
+复杂度是 O(m+n) 
+
+这一题还有一种，因为是一直升序排列的二维数组。
+
+左上肯定是最小的，右下肯定是最大的。
+
+虽然上面是最大的，但是却不能选。这些作为比较值。
+
+而应该选择。右上角或者左下角。
+
+![image-20220414140821691](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220414140821691.png)
+
+>- 如果要搜索的 target 比当前元素大，那么让行增加
+>- 如果要搜索的 target 比当前元素小，那么让列减小
+
+```java
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        int row = 0, col = matrix[0].length - 1;
+        // 注意这里的跳出条件
+        while (row < matrix.length && col >= 0) {
+            if (matrix[row][col] == target) {
+                return true;
+            } else if (matrix[row][col] > target) {
+                // 比目标值大，那么列--
+                col--;
+            } else {
+                // 比目标值小，那么行++
+                row++;
+            }
+        }
+        return false;
+    }
+}
+```
+
+## [240. 搜索二维矩阵 II](https://leetcode-cn.com/problems/search-a-2d-matrix-ii/)
+
+```
+编写一个高效的算法来搜索 m x n 矩阵 matrix 中的一个目标值 target 。该矩阵具有以下特性：
+
+每行的元素从左到右升序排列。
+每列的元素从上到下升序排列。
+
+输入：matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
+输出：true
+输入：matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 20
+输出：false
+ 
+提示：
+m == matrix.length
+n == matrix[i].length
+1 <= n, m <= 300
+-109 <= matrix[i][j] <= 109
+每行的所有元素从左到右升序排列
+每列的所有元素从上到下升序排列
+-109 <= target <= 109
+```
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/11/25/searchgrid.jpg)
+
+这一题其实本质也是搜索，和上面Q74的不一样的地方在于
+
+> 每行的元素从左到右升序排列。
+> 每列的元素从上到下升序排列。
+
+### 思路1 暴力遍历
+
+```java
+/**
+ * 暴力解法
+ * 时间复杂度O(mn)
+ * 空间复杂度O(1)
+ *
+ * @param matrix 二维数组
+ * @param target 目标值
+ * @return
+ */
+public boolean searchMatrix(int[][] matrix, int target) {
+    int row = matrix.length, col = matrix[0].length;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            if (matrix[i][j] == target) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+```
+
+### 思路2 对每一行每一列执行二分查找
+
+（总共执行行列里面小的那个数值次）
+
+![image-20220414143622536](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220414143622536.png)
+
+```java
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        int m = matrix.length;
+        if (m == 0) return false;
+        int n = matrix[0].length;
+        // 先找出行列里偏小的
+        int shortDim = Math.min(m, n);
+        // 进行 shortDim 次的 二分
+        for (int i = 0; i < shortDim; i++) {
+            // 先二分行
+            boolean rowFound = binarySearchRow(matrix, i, target);
+            // 二分列
+            boolean colFount = binarySearchCol(matrix, i, target);
+            // 行列只要出了结果 就是有
+            if (rowFound || colFount) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean binarySearchRow(int[][] matrix,
+                                    int row, int target) {
+        int lo = row;
+        int hi = matrix[0].length - 1;
+
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+            // 这里要注意！matrix[行][mid]
+            if (matrix[row][mid] == target) {
+                return true;
+            } else if (matrix[row][mid] < target) {
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean binarySearchCol(int[][] matrix,
+                                    int col, int target) {
+        int le = col;
+        int hi = matrix.length - 1;
+
+        while (le <= hi) {
+            int mid = le + (hi - le) / 2;
+            // 这里要注意！matrix[mid][列]
+            if (matrix[mid][col] == target) {
+                return true;
+            } else if (matrix[mid][col] < target) {
+                le = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+
+        return false;
+    }
+}
+```
+
+### 思路3 线性查找（缩小范围）
+
+![image-20220414144004910](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220414144004910.png)
+
+```java
+/**
+ * 缩小搜索范围
+ *
+ * @param matrix 二维数组
+ * @param target 目标值
+ * @return
+ */
+public boolean searchMatrix2(int[][] matrix, int target) {
+    int row = matrix.length, col = matrix[0].length;
+    // 起点，左下方
+    int i = row - 1, j = 0;
+    // 跳出来点，走完列 并且 也走完了行
+    while (i >= 0 && j < col) {
+        if (matrix[i][j] == target) {
+            return true;
+        } else if (matrix[i][j] > target) {
+            // 大了，行--
+            i--;
+        } else {
+            // 小了，列++
+            j++;
+        }
+    }
+    return false;
+}
+```
+
