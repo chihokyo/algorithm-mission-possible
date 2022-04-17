@@ -1595,3 +1595,96 @@ public boolean searchMatrix2(int[][] matrix, int target) {
 }
 ```
 
+## [69. x 的平方根 ](https://leetcode-cn.com/problems/sqrtx/)
+
+```
+给你一个非负整数 x ，计算并返回 x 的 算术平方根 。
+由于返回类型是整数，结果只保留 整数部分 ，小数部分将被 舍去 。
+注意：不允许使用任何内置指数函数和算符，例如 pow(x, 0.5) 或者 x ** 0.5 。
+
+示例 1：
+输入：x = 4
+输出：2
+示例 2：
+输入：x = 8
+输出：2
+解释：8 的算术平方根是 2.82842..., 由于返回类型是整数，小数部分将被舍去。
+
+提示：
+0 <= x <= 231 - 1
+```
+
+虽然这是一个利用自带的API就完全可以解决的一道题！
+
+但还是继续写一下吧。
+
+### 思路1 暴力遍历
+
+一个数的平方根肯定是小于这个数的，于是答案就在`[0, x]`这个范围来。
+
+但下面这个超出时间限制！！
+
+```java
+class Solution {
+    public int mySqrt(int x) {
+        // 不写0是因为0也有可能是答案
+        int ans = -1;
+        for (int k = 0; k <= x; k++) {
+            // 这里一定要long，不然k*k之后可能会整型溢出
+            if ((long) k * k <= x) {
+                ans = k;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+### 思路2 二分法
+
+其实这道题吧，本质还二分法查找没区别。
+
+以前二分法查找的时候，总是给的是 `nums[mid] == target`,这一次就是相当于`mid * mid <= x`
+
+```java
+class Solution {
+    public int mySqrt(int x) {
+        int left = 0, right = x;
+        while (left < right) {
+            int mid = left + right >> 1;
+          	// 看看这个mid的值到底是不是小于
+	          // 小于直接到右边找
+            if ((long)mid * mid < x) {
+                left = mid + 1;
+            } else {
+              	// >= 去左边找
+                right = mid;
+            }
+        }
+      // 最后只剩下一个,判断结果。这里有一个问题就是left-1 因为
+        // 跳出循环的时候left是mid+1，返回的时候自然要减1
+        return (long)left * left <= x ? left : left -1;
+    }
+}
+
+class Solution {
+    public int mySqrt(int x) {
+        int left = 0, right = x, res = -1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if ((long)mid * mid <= x) {
+                // 这里的mid有可能是答案，但是可能右边还有
+                res = mid;
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        // 这里就是走完了全部的数字！
+        return res;
+    }
+}
+```
+
+- 这一题要注意的就是 考虑到mid有可能在*之后会有溢出的情况，所以要改为long
+- 关于2种做法，这里会有一个判断边界的情况。

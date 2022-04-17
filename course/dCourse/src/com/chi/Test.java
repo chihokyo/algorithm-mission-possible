@@ -1,2 +1,7 @@
-package com.chi;public class Test {
+package com.chi;
+
+public class Test {
+    public static void main(String[] args) {
+        System.out.println("yes");
+    }
 }
