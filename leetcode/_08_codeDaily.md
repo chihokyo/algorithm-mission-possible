@@ -1688,3 +1688,129 @@ class Solution {
 
 - 这一题要注意的就是 考虑到mid有可能在*之后会有溢出的情况，所以要改为long
 - 关于2种做法，这里会有一个判断边界的情况。
+
+## [1539. 第 k 个缺失的正整数](https://leetcode-cn.com/problems/kth-missing-positive-number/)
+
+```
+给你一个 严格升序排列 的正整数数组 arr 和一个整数 k 。
+请你找到这个数组里第 k 个缺失的正整数。
+
+示例 1：
+输入：arr = [2,3,4,7,11], k = 5
+输出：9
+解释：缺失的正整数包括 [1,5,6,8,9,10,12,13,...] 。第 5 个缺失的正整数为 9 。
+示例 2：
+输入：arr = [1,2,3,4], k = 2
+输出：6
+解释：缺失的正整数包括 [5,6,7,...] 。第 2 个缺失的正整数为 6 。
+
+提示：
+1 <= arr.length <= 1000
+1 <= arr[i] <= 1000
+1 <= k <= 1000
+对于所有 1 <= i < j <= arr.length 的 i 和 j 满足 arr[i] < arr[j] 
+```
+
+ 这一道题可以先用直接模拟法来做
+
+### 思路1 直接模拟
+
+直接模拟的话 思路有点牛逼
+
+![image-20220418201505111](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220418201505111.png)
+
+这里直接上代码可能会更容易看一点
+
+```java
+class Solution {
+    public int findKthPositive(int[] arr, int k) {
+        int missConut = 0; // 记录缺失次数
+        int curNum = 1; // 记录当前走到哪个值
+        int lastMissNum = -1; // 记录上一值
+
+        int i = 0; // 计数1，2，3...
+        // 结束条件 当缺失次数 < k 因为当等于k的时候可以直接跳出
+        while (missConut < k) {
+            // 说明没缺
+            if (arr[i] == curNum) {
+                // 这里必须要计算下长度，因为当i大于数组长度的时候 说明后面全都是缺失的
+                // 后面既然全部都是缺失的，那么就直接计算成缺失就行，就不要走这里了
+                i = (i + 1 < arr.length) ? i + 1 : i;
+            } else {
+                // 说明缺了
+                missConut++;
+                // 缺失的值 就是当前的值了
+                lastMissNum = curNum;
+            }
+            // 无论有无缺失 每一次都要向前走
+            curNum++;
+        }
+        // 最后跳出的时候 missConut=k 此时就是答案
+        return lastMissNum;
+    }
+}
+```
+
+### 思路2 二分查找
+
+思路如下
+
+其实这一题为什么可以用二分查找的原因是因为寻找【差】这个是升序的，既然有顺序的话，基本上都可以用二分法来解决！！
+
+![image-20220418210636277](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220418210636277.png)
+
+上面那个写错了，最后的答案应该是
+
+左边的值 + （目标的计数 - 左边的差）
+
+```java
+class Solution {
+    public int findKthPositive(int[] arr, int k) {
+        // 第一个就大于kk 说明k就是第k个。
+        // 比如[5,6,7,8,9] k是4，那么答案也是4 → 1,2,3,4
+        if (arr[0] > k) return k;
+        int left = 0, right = arr.length;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            // 差<=k 说明在右边
+            if (arr[mid] - mid - 1 < k) {
+                left = mid + 1;
+            } else {
+                // 差>k 说明在左边
+                right = mid;
+            }
+        }
+        // 走到这里只剩下一个了
+        // 这里要找左边的邻居arr[left - 1]，而不能找 arr[left]
+        // 不懂建议画图，这题就这么来的
+        int leftMissCount = arr[left - 1] - (left - 1) - 1;
+        return arr[left - 1] + (k - leftMissCount);
+    }
+}
+```
+
+### 思路3 遍历
+
+这个是看评论区写出来的，感觉也很巧妙
+
+```java
+class Solution {
+    public int findKthPositive(int[] arr, int k) {
+        // 长度
+        int n = arr.length;
+        // 开始遍历
+        for (int i = 0; i < n; i++) {
+            // 因为正常的没有任何缺失的情况下 arr[i]-i-1 等于 0
+            // 直到遍历到 差是>=k
+            if (arr[i] - i - 1 >= k) {
+                // 当前index+k就是答案
+                return k + i;
+            }
+        }
+        // 适用于1,2,3,4 k是2的这种情况
+        // 也就是都走完了，还没有缺的
+        return k + n;
+    }
+}
+```
+

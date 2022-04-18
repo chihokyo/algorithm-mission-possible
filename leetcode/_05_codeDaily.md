@@ -797,7 +797,7 @@ public String multiply(String num1, String num2) {
 
 首先这一题最简单的就是每一个数字判断是不是为【质数】，是的count+1就可以了
 
-![image-20220203144757125](/Users/chin/Library/Application Support/typora-user-images/image-20220203144757125.png![](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170214891-20220203160745732.png)
+![image-20220203144757125](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220203144757125.png)![](https://raw.githubusercontent.com/chihokyo/image_host/develop/image-20220201170214891-20220203160745732.png)
 
 ```java
 // 解法1 暴力解法 2个循环O(n^2)，数据量大不行
