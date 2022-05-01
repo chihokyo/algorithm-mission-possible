@@ -6,10 +6,9 @@
 - [167. 两数之和 II - 输入有序数组](https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/)
 - [653. 两数之和 IV - 输入 BST](https://leetcode-cn.com/problems/two-sum-iv-input-is-a-bst/)
 - [15. 三数之和](https://leetcode-cn.com/problems/3sum/)
--  [18. 四数之和](https://leetcode-cn.com/problems/4sum/)
+- [18. 四数之和](https://leetcode-cn.com/problems/4sum/)
 
-
-## 解题开始                                                
+## 解题开始
 
 ### [【1】1. 两数之和](https://leetcode-cn.com/problems/two-sum/)
 
@@ -45,7 +44,7 @@ class Solution {
 
 不是有序数组？ → 让她成为有序数组 → 有序数组之后索引丢失了！ → 弄个哈希专门用来存储索引 👇🏻
 
-典型的用空间换时间！但其实空间复杂度n了，时间复杂度nlongn了
+典型的用空间换时间！但其实空间复杂度`O(n)`了，时间复杂度`O(nlongn)`了
 
 ![image-20211008151111126](https://raw.githubusercontent.com/chihokyo/image_host/develop/20211008151112.png)
 
@@ -59,7 +58,7 @@ class Solution {
 - 初始化哈希表 遍历 key是值，value就是索引
 - 然后再次遍历 看 target - 值 得出的结果是否是哈希表的key，如果有这个key，就看这个key对应的value。这个key对应的value就是**索引**
 - 这里最重要的**根据题意**，一个索引不能用2次。
-- 时间和空间复杂度都是O（n）
+- 时间和空间复杂度都是`O(n)`
 
 ```java
 class Solution {
@@ -82,7 +81,7 @@ class Solution {
                 if (i != index ) return new int[]{i, index};
             }
         }
-        
+
         return new int[0];
     }
 }
@@ -111,7 +110,7 @@ class Solution {
             }
             map.put(nums[i], i);
         }
-        
+
         return new int[0];
     }
 }

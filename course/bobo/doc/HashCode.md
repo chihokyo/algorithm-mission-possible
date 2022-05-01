@@ -177,4 +177,7 @@ public class Student {
 
 A: 重写`equals()`
 
-  
+## 哈希冲突处理 → Seperate Chaining  
+
+- 用数组存储
+- 数组冲突之后 → 使用链表
