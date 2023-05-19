@@ -2,10 +2,10 @@ package com.chi.line.array;
 
 import java.util.Arrays;
 
-public class ArrayUtils {
+public class _01_ArrayUtils {
 
     /**
-     * 数组大小
+     * 获取数组大小【不严谨】
      *
      * @param arr 需要检查的数组
      * @return boolean
@@ -19,7 +19,7 @@ public class ArrayUtils {
     }
 
     /**
-     * 数组大小
+     * 检查数组是否为空【不严谨】
      *
      * @param arr 需要知道大小的数组
      * @return int 大小
@@ -71,7 +71,8 @@ public class ArrayUtils {
         dest[index] = element;
 
         // 4 把index后面的拷贝到新数组里
-
+        // 要注意的就是这里index是从i开始的，我第一次以为i从index+1开始 其实这样也可以
+        // 但是如果这样写的话 dest[i] = src[i-1];
         for (int i = index; i < length; i++) {
             dest[i + 1] = src[i];
         }
@@ -94,7 +95,7 @@ public class ArrayUtils {
             dest[i] = src[i];
         }
         // if (index >= 0) System.arraycopy(src, 0, dest, 0, index);
-        // 这里就忽略了index
+        // 这里就忽略了index i只能到-1，千万不能忘记
         for (int i = index; i < src.length - 1; i++) {
             // 这里就忽略了index
             dest[i] = src[i + 1];
@@ -106,12 +107,12 @@ public class ArrayUtils {
 
     public static void main(String[] args) {
         int[] array = {1, 2, 6, 9, 5};
-        System.out.println(ArrayUtils.getSize(array));
-        System.out.println(ArrayUtils.isEmpty(array));
-        System.out.println(ArrayUtils.contains(array, 8));
-        int[] t1 = ArrayUtils.insertElement(array, 1, 11);
+        System.out.println(_01_ArrayUtils.getSize(array));
+        System.out.println(_01_ArrayUtils.isEmpty(array));
+        System.out.println(_01_ArrayUtils.contains(array, 8));
+        int[] t1 = _01_ArrayUtils.insertElement(array, 1, 11);
         System.out.println(Arrays.toString(t1));
-        int[] t2 = ArrayUtils.removeElement(array, 2);
+        int[] t2 = _01_ArrayUtils.removeElement(array, 2);
         System.out.println(Arrays.toString(t2));
     }
 }
