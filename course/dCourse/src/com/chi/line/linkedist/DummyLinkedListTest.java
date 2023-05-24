@@ -1,10 +1,8 @@
 package com.chi.line.linkedist;
 
-public class LinkedListTest {
-
+public class DummyLinkedListTest {
     public static void main(String[] args) {
-        // 测试普通链表
-        _02_LinkedList<Integer> linkedList = new _02_LinkedList<>();
+        _03_DummyLinkedList<Integer> linkedList = new _03_DummyLinkedList<>();
         linkedList.addFirst(5);
         linkedList.addFirst(9);
         linkedList.addFirst(-7);
@@ -19,6 +17,5 @@ public class LinkedListTest {
         System.out.println(linkedList);
         linkedList.removeLast();
         System.out.println(linkedList);
-
     }
 }
