@@ -65,7 +65,7 @@ public class _04_MyArrayResize<T> {
 
     // 时间复杂度O(1) 循环体根本不会执行
     public void addLast(T e) {
-        add(size - 1, e);
+        add(size, e);
     }
 
     /**

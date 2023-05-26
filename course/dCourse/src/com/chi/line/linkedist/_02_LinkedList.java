@@ -1,6 +1,5 @@
 package com.chi.line.linkedist;
 
-import com.chi.line.linkedlist.BasicLinkedList;
 
 /**
  * 这里开始写增删改查

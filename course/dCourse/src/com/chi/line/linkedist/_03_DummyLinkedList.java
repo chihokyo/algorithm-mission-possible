@@ -1,6 +1,5 @@
 package com.chi.line.linkedist;
 
-import com.chi.line.linkedlist.DummyLinkedList;
 
 /**
  * 虚拟节点
