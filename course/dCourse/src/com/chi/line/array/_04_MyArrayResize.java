@@ -138,6 +138,14 @@ public class _04_MyArrayResize<T> {
         return temp;
     }
 
+    public T removeLast() {
+        return removeIndex(size - 1);
+    }
+
+    public T removeFirst() {
+        return removeIndex(0);
+    }
+
     /**
      * 删除操作
      * 删除其实有2种 删除指定元素
