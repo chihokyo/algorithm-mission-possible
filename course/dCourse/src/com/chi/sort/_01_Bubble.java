@@ -1,4 +1,7 @@
-package com.chi.sort.bubblesort;
+package com.chi.sort;
+
+import static com.chi.sort.Sorter.printArray;
+import static com.chi.sort.Sorter.swap;
 
 /**
  * 冒泡排序
@@ -14,10 +17,16 @@ public class _01_Bubble {
         // bubbleSort2(array); // 思路2
         // bubbleSort3(array); // 思路3
         // bubbleSort4(array); // 思路4
-        bubbleSort5(array); // 思路5
+        // bubbleSort5(array); // 思路5
+
+        bubbleSortPractise(array);
 
         System.out.println("排序后的数组：");
         printArray(array);
+    }
+
+    // 复习用代码
+    private static void bubbleSortPractise(int[] array) {
     }
 
     /**
@@ -120,8 +129,6 @@ public class _01_Bubble {
             if (!isSwapped) break;
             lastSwappedIndex = currentSwappedIndex;
         }
-
-
     }
 
     /**
@@ -143,7 +150,6 @@ public class _01_Bubble {
                 }
             }
             right--; // 未排序里最大的已经找到了
-
             // 此时就找最小
             for (int i = right; i > left; i--) {
                 if (array[i] < array[i - 1]) { // 注意区分这里是i-1
@@ -153,12 +159,4 @@ public class _01_Bubble {
             left++;
         }
     }
-
-    public static void printArray(int[] array) {
-        for (int i = 0; i < array.length; i++) {
-            System.out.print(array[i] + " ");
-        }
-        System.out.println();
-    }
-
 }

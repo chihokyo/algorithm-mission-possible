@@ -1,30 +1,46 @@
-package com.chi.sort.bubblesort;
+package com.chi.sort;
 
-import static com.chi.sort.bubblesort.Sorter.swap;
+import static com.chi.sort.Sorter.printArray;
+import static com.chi.sort.Sorter.swap;
 
 /**
  * 选择排序
  */
 public class _02_Selection {
     public static void main(String[] args) {
-        int[] array = {155, 2, 7, 3, 1, 6, 4, 2, 4, 4, 55, 8, 7, 2};
+        int[] array = {155, 2, 7, 3, 1, 6, 4, 2, 4, 4, 55, 8, 7, 2, -6};
 
         System.out.println("排序前的数组：");
         printArray(array);
 
         // selection1(array); // 传统写法
         // selection2(array); // 双指针 用while
-        selection3(array); // 双指针 用for
+        // selection3(array); // 双指针 用for
+
+        selectionPractise(array); // 复习用代码
 
         System.out.println("排序后的数组：");
         printArray(array);
     }
 
-    public static void printArray(int[] array) {
-        for (int i = 0; i < array.length; i++) {
-            System.out.print(array[i] + " ");
+    // 复习用代码
+    private static void selectionPractise(int[] array) {
+        int n = array.length;
+        int left = 0, right = n - 1;
+        while (left < right) {
+            int minIndex = left, maxIndex = right;
+            for (int i = left; i <= right; i++) {
+                if (array[i] < array[minIndex]) minIndex = i;
+                if (array[i] > array[maxIndex]) maxIndex = i;
+            }
+            // 此时已经找到最小和最大index
+            if (maxIndex == left) maxIndex = minIndex;
+            swap(array, minIndex, left);
+
+            swap(array, maxIndex, right);
+            left++;
+            right--;
         }
-        System.out.println();
     }
 
     /**
@@ -41,10 +57,11 @@ public class _02_Selection {
             // 这里必须遍历到最后一个值 如果你写的是n-1 最后一个值就不会被比较了
             for (int j = i + 1; j < n; j++) {
                 if (array[j] < array[minIndex]) {
-                    // 交换
-                    swap(array, j, minIndex);
+                    minIndex = j;
                 }
             }
+            // 交换
+            Sorter.swap(array, i, minIndex);
         }
     }
 
